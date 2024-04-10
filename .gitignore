@@ -1,0 +1,66 @@
+# Compiled Go binaries
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+
+# Go specific
+vendor/
+*.out
+*.test
+
+# Environment files
+.env
+*.pem
+
+# Dependency directories (Consider if not using a vendor directory)
+Gopkg.lock
+go.sum
+/vendor/
+
+# Configuration files
+config.yaml
+*.conf
+
+# Exclude the Docker env files
+docker-compose.override.yml
+
+# Kubernetes deployment files that may contain sensitive information
+*.kubeconfig
+
+# Certificates
+*.crt
+*.key
+
+# Ignore generated files from migrations
+migrations/*.go
+
+# Ignore static files that may be uploaded or generated
+/static/
+/uploads/
+
+# Ignore any secrets file that may contain sensitive information such as API keys or credentials
+secrets.yaml
+secrets.json
