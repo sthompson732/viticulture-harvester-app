@@ -1,3 +1,17 @@
+/*
+ * File: models.go
+ * Description: Defines data structures that represent database tables and are used throughout the application
+ *              for data manipulation and retrieval. These models are used directly with the database/sql
+ *              package to prepare and execute SQL statements.
+ * Usage:
+ *   - Structs are used to scan results from SQL queries and to structure data for insertion.
+ *   - Serve as a data transfer object between the database and application logic.
+ * Dependencies:
+ *   - Used directly by db.go for constructing SQL queries and scanning query results.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+
 package model
 
 import "time"
@@ -26,7 +40,7 @@ type Vineyard struct {
 	ID               uint   `json:"id"`
 	Name             string `json:"name"`
 	Location         string `json:"location"` // Consider using a more complex type for geolocation data
-	SoilHealth       SoilData
+	SoilHealth       []SoilData
 	SatelliteImagery []SatelliteData
 	// Consider relationships, such as vines or crops, that may also be part of this model
 }

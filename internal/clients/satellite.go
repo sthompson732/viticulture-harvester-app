@@ -1,4 +1,18 @@
-package clients
+/*
+ * File: satellite.go
+ * Description: Interacts with satellite data providers to fetch remote sensing and satellite imagery.
+ *              Handles API calls and processes responses for use in vineyard monitoring and management.
+ * Usage:
+ *   - Retrieve satellite images and metadata for specified coordinates and times.
+ *   - Process and store imagery data in a compatible format for analysis.
+ * Dependencies:
+ *   - External satellite imagery APIs (e.g., NASA, ESA).
+ *   - JSON parsing and HTTP client libraries.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+
+package client
 
 import (
 	"context"
@@ -6,8 +20,9 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	"viticulture-harvester-app/internal/config"
-	"viticulture-harvester-app/internal/model"
+
+	"github.com/sthompson732/viticulture-harvester-app/internal/config"
+	"github.com/sthompson732/viticulture-harvester-app/internal/model"
 )
 
 // SatelliteClient is configured to fetch satellite imagery data.
@@ -26,7 +41,7 @@ func NewSatelliteClient(cfg *config.Config) *SatelliteClient {
 func (c *SatelliteClient) FetchData(ctx context.Context, lat, long string, startDate, endDate time.Time) (*model.SatelliteData, error) {
 	// Constructing the request URL from the configuration and method parameters
 	reqURL := fmt.Sprintf("%s?lat=%s&lon=%s&start_date=%s&end_date=%s&api_key=%s",
-		c.Config.DataSources.Satellite.APIEndpoint,
+		c.Config.DataSources.Satellite.Endpoint,
 		lat, long,
 		startDate.Format("2006-01-02"),
 		endDate.Format("2006-01-02"),

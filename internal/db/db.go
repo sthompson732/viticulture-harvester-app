@@ -1,3 +1,17 @@
+/*
+ * File: db.go
+ * Description: Manages database operations using the database/sql package for direct SQL execution.
+ *              Handles all interactions like connections, query executions, and transaction management.
+ * Usage:
+ *   - Directly execute SQL statements for CRUD operations and more complex transactions.
+ *   - Manage database connections and ensure query performance optimization.
+ * Dependencies:
+ *   - PostgreSQL for database operations.
+ *   - database/sql package for handling all SQL operations.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+
 package db
 
 import (
@@ -5,9 +19,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"viticulture-harvester-app/internal/model"
 
 	_ "github.com/lib/pq"
+	"github.com/sthompson732/viticulture-harvester-app/internal/model"
 )
 
 type DB struct {
@@ -20,13 +34,45 @@ func NewDB(dsn string) (*DB, error) {
 		return nil, fmt.Errorf("error opening database: %w", err)
 	}
 
-	// Set up connection pool settings (if needed based on your application load)
-
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("error verifying connection to database: %w", err)
 	}
 
 	return &DB{db}, nil
+}
+
+func (db *DB) SaveImage(ctx context.Context, image *model.Image) error {
+	const query = `
+    INSERT INTO images (vineyard_id, url, captured_at)
+    VALUES ($1, $2, $3)
+    RETURNING id`
+	err := db.QueryRowContext(ctx, query, image.VineyardID, image.URL, image.CapturedAt).Scan(&image.ID)
+	if err != nil {
+		return fmt.Errorf("inserting image: %w", err)
+	}
+	return nil
+}
+
+func (db *DB) GetImage(ctx context.Context, id int) (*model.Image, error) {
+	const query = `
+    SELECT id, vineyard_id, url, captured_at
+    FROM images
+    WHERE id = $1`
+	img := &model.Image{}
+	err := db.QueryRowContext(ctx, query, id).Scan(&img.ID, &img.VineyardID, &img.URL, &img.CapturedAt)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving image by ID: %w", err)
+	}
+	return img, nil
+}
+
+func (db *DB) DeleteImage(ctx context.Context, id int) error {
+	const query = `DELETE FROM images WHERE id = $1`
+	_, err := db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("deleting image: %w", err)
+	}
+	return nil
 }
 
 // SaveVineyard inserts a new Vineyard record into the database.
@@ -138,21 +184,49 @@ func (db *DB) UpdateSoilData(ctx context.Context, soilData *model.SoilData, vine
 func (db *DB) GetVineyardWithEnvironmentalData(ctx context.Context, vineyardID int) (*model.Vineyard, error) {
 	vineyard, err := db.GetVineyard(ctx, vineyardID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("retrieving vineyard by ID: %w", err)
 	}
 
 	satelliteImagery, err := db.GetSatelliteImageryForVineyard(ctx, vineyardID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("retrieving satellite imagery for vineyard: %w", err)
 	}
 	vineyard.SatelliteImagery = satelliteImagery
 
-	// Assuming GetSoilDataForVineyard is not yet implemented
 	soilData, err := db.GetSoilDataForVineyard(ctx, vineyardID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("retrieving soil data for vineyard: %w", err)
 	}
-	vineyard.SoilHealth = *soilData
+	vineyard.SoilHealth = soilData
 
 	return vineyard, nil
+}
+
+// GetSoilDataForVineyard retrieves all soil data entries for a specific vineyard.
+func (db *DB) GetSoilDataForVineyard(ctx context.Context, vineyardID int) ([]model.SoilData, error) {
+	const query = `
+    SELECT data
+    FROM soil_data
+    WHERE vineyard_id = $1`
+
+	rows, err := db.QueryContext(ctx, query, vineyardID)
+	if err != nil {
+		return nil, fmt.Errorf("querying soil data for vineyard: %w", err)
+	}
+	defer rows.Close()
+
+	var soils []model.SoilData
+	for rows.Next() {
+		var data model.SoilData
+		if err := rows.Scan(&data); err != nil {
+			return nil, fmt.Errorf("scanning soil data: %w", err)
+		}
+		soils = append(soils, data)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("reading soil data rows: %w", err)
+	}
+
+	return soils, nil
 }

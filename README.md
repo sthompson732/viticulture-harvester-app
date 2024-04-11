@@ -59,6 +59,8 @@ Before you begin, ensure you have installed the following software on your syste
         /model                      # Data models
             models.go               # Structs for database and JSON
             models_test.go          # Tests for data models
+        /scheduler                  # Scheduler Interactions
+            scheduler.go            # GCP Cloud Scheduler Interaction
         /service                    # Service Interfaces
             imageservice.go         # Service for Satellite Image Interface
             soildataservice.go      # Service for Soil Data Interface

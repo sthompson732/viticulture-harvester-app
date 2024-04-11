@@ -1,14 +1,27 @@
-package clients
+/*
+ * File: soil.go
+ * Description: Retrieves soil health data from various soil data services, enabling detailed soil analysis
+ *              for precision agriculture applications in vineyards.
+ * Usage:
+ *   - Query soil composition, moisture levels, and other relevant soil health indicators.
+ *   - Use data to inform soil management practices and interventions.
+ * Dependencies:
+ *   - Soil data providers (e.g., SoilGrids, local agricultural services).
+ *   - Libraries for handling HTTP requests and JSON data.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+package client
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"time"
-	"viticulture-harvester-app/internal/config"
-	"viticulture-harvester-app/internal/model"
+
+	"github.com/sthompson732/viticulture-harvester-app/internal/config"
+	"github.com/sthompson732/viticulture-harvester-app/internal/model"
 )
 
 // SoilClient manages interactions with a soil data API.
@@ -25,14 +38,12 @@ func NewSoilClient(cfg *config.Config) *SoilClient {
 
 // FetchData queries the soil data API and returns structured information.
 func (c *SoilClient) FetchData(ctx context.Context, lat, long string) (*model.SoilData, error) {
-	// Constructing the request URL with parameters from the configuration and function arguments
 	reqURL := fmt.Sprintf("%s?latitude=%s&longitude=%s&api_key=%s",
-		c.Config.DataSources.Soil.APIEndpoint,
+		c.Config.DataSources.Soil.Endpoint,
 		lat, long,
 		c.Config.DataSources.Soil.APIKey,
 	)
 
-	// Making the HTTP request with context for cancellation and timeouts
 	req, err := http.NewRequestWithContext(ctx, "GET", reqURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
@@ -45,19 +56,13 @@ func (c *SoilClient) FetchData(ctx context.Context, lat, long string) (*model.So
 	}
 	defer resp.Body.Close()
 
-	// Verifying response status code
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	// Reading and decoding the response body into the SoilData struct
 	var soilData model.SoilData
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response body: %w", err)
-	}
-	if err := json.Unmarshal(body, &soilData); err != nil {
-		return nil, fmt.Errorf("unmarshaling response: %w", err)
+	if err := json.NewDecoder(resp.Body).Decode(&soilData); err != nil {
+		return nil, fmt.Errorf("decoding response: %w", err)
 	}
 
 	return &soilData, nil

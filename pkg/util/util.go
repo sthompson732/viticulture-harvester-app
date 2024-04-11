@@ -1,3 +1,17 @@
+/*
+ * File: util.go
+ * Description: Provides utility functions like JSON response formatting, error handling, and other
+ *              common tasks that are used across various parts of the application.
+ * Usage:
+ *   - Encode objects to JSON for HTTP responses.
+ *   - Handle errors consistently across the application.
+ *   - Perform common operations like decoding request bodies.
+ * Dependencies:
+ *   - Standard library packages like 'encoding/json' and 'net/http'.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+
 package util
 
 import (

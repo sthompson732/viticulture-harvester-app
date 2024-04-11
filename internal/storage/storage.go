@@ -1,3 +1,15 @@
+/*
+ * File: storage.go
+ * Description: Handles file storage operations, particularly for storing and retrieving image files from cloud storage.
+ *              Integrates with Google Cloud Storage.
+ * Usage:
+ *   - Upload, download, and delete files using methods provided.
+ * Dependencies:
+ *   - Cloud storage SDKs (e.g., AWS SDK, Google Cloud SDK).
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+
 package storage
 
 import (
@@ -6,6 +18,7 @@ import (
 	"io"
 
 	"cloud.google.com/go/storage"
+	"google.golang.org/api/iterator"
 )
 
 // StorageService encapsulates the Google Cloud Storage client and related operations.
@@ -58,7 +71,7 @@ func (s *StorageService) ListImages(ctx context.Context) ([]string, error) {
 	it := s.Client.Bucket(s.BucketName).Objects(ctx, nil)
 	for {
 		attrs, err := it.Next()
-		if err == storage.Done {
+		if err == iterator.Done {
 			break
 		}
 		if err != nil {

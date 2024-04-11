@@ -1,14 +1,31 @@
+/*
+ * File: main.go
+ * Description: Entry point of the Viniculture Data Harvester application. This file initializes
+ *              all necessary services, sets up the HTTP router, and starts the server.
+ * Usage:
+ *   - Initializes database connections, configures services, and prepares the HTTP server.
+ *   - Routes are set up using the router.go configurations, and the server is started on a specified port.
+ * Dependencies:
+ *   - server.go for starting the server.
+ *   - router.go for HTTP routing configurations.
+ *   - service files like vineyardservice.go for business logic.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
+
 package main
 
 import (
 	"context"
 	"log"
 	"os"
-	"viticulture-harvester-app/internal/clients"
-	"viticulture-harvester-app/internal/config"
-	"viticulture-harvester-app/internal/db"
-	"viticulture-harvester-app/internal/server"
-	"viticulture-harvester-app/internal/storage"
+
+	"github.com/sthompson732/github.com/sthompson732/viticulture-harvester-app/internal/clients"
+	"github.com/sthompson732/viticulture-harvester-app/internal/config"
+	"github.com/sthompson732/viticulture-harvester-app/internal/db"
+	"github.com/sthompson732/viticulture-harvester-app/internal/scheduler"
+	"github.com/sthompson732/viticulture-harvester-app/internal/server"
+	"github.com/sthompson732/viticulture-harvester-app/internal/storage"
 )
 
 func main() {
@@ -38,6 +55,16 @@ func main() {
 	// Initialize satellite and soil clients
 	satelliteClient := clients.NewSatelliteClient(cfg)
 	soilClient := clients.NewSoilClient(cfg)
+
+	// Initialize Scheduler Client and set up jobs
+	schedClient, err := scheduler.NewSchedulerClient(ctx, cfg)
+	if err != nil {
+		log.Fatalf("Failed to create scheduler client: %v", err)
+	}
+
+	if err := schedClient.InitializeJobs(ctx); err != nil {
+		log.Fatalf("Failed to initialize scheduler jobs: %v", err)
+	}
 
 	// Initialize and start the server
 	srv := server.NewServer(database, storageClient, satelliteClient, soilClient)
