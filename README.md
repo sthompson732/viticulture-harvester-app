@@ -139,7 +139,26 @@ go mod tidy
 
 This command cleans up the module's dependencies, adding missing ones and removing unused ones.
 
-#### 6. Build the Application
+#### 6. Database Setup
+
+To initialize the database, run the following command from the project root:
+
+``` bash
+psql -U username -d databasename -a -f ./scripts/sql/initdb.sql
+
+```
+
+Replace username and databasename with your PostgreSQL username and database name, respectively.
+
+##### Seed Data
+
+If you need to seed your database with initial data, run:
+
+``` bash
+psql -U username -d databasename -a -f ./scripts/sql/seeddata.sql
+```
+
+#### 7. Build the Application
 
 Compile the application into an executable:
 
@@ -148,7 +167,7 @@ go build -o harvester.exe  # On Windows
 go build -o harvester      # On Linux or macOS
 ```
 
-#### 7. Run the Application
+#### 8. Run the Application
 
 Run the compiled application:
 
