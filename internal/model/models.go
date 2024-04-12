@@ -42,5 +42,24 @@ type Vineyard struct {
 	Location         string `json:"location"` // Consider using a more complex type for geolocation data
 	SoilHealth       []SoilData
 	SatelliteImagery []SatelliteData
-	// Consider relationships, such as vines or crops, that may also be part of this model
+	// Consider relationships, such as vines or crops, that we may also want to be part of this model
+}
+
+// PestData represents data about pest observations within a vineyard.
+type PestData struct {
+	ID              int       `json:"id"`
+	VineyardID      int       `json:"vineyard_id"`
+	Description     string    `json:"description"`
+	ObservationDate time.Time `json:"observation_date"`
+	Location        string    `json:"location"` // GeoJSON format
+}
+
+// WeatherData represents weather conditions observed in a vineyard at a specific time.
+type WeatherData struct {
+	ID              int       `json:"id"`
+	VineyardID      int       `json:"vineyard_id"`
+	Temperature     float64   `json:"temperature"` // in Celsius
+	Humidity        float64   `json:"humidity"`    // percentage
+	ObservationTime time.Time `json:"observation_time"`
+	Location        string    `json:"location"` // GeoJSON format
 }

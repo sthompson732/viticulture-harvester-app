@@ -19,6 +19,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
@@ -30,6 +31,8 @@ type AppHandler struct {
 	VineyardService service.VineyardService
 	ImageService    service.ImageService
 	SoilDataService service.SoilDataService
+	PestService     service.PestService
+	WeatherService  service.WeatherService
 }
 
 // CreateVineyard handles POST requests to add new vineyards
@@ -163,4 +166,116 @@ func (h *AppHandler) UpdateSoilData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	util.JSONResponse(w, http.StatusOK, map[string]string{"status": "soil data updated"})
+}
+
+// Pest Handlers
+
+func (h *AppHandler) GetPestData(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid pest ID", http.StatusBadRequest)
+		return
+	}
+	data, err := h.PestService.GetPestData(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to fetch pest data", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(data)
+}
+
+func (h *AppHandler) CreatePestData(w http.ResponseWriter, r *http.Request) {
+	var data model.PestData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	if err := h.PestService.CreatePestData(r.Context(), &data); err != nil {
+		http.Error(w, "Failed to create pest data", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(data)
+}
+
+func (h *AppHandler) DeletePestData(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid pest ID", http.StatusBadRequest)
+		return
+	}
+	if err := h.PestService.DeletePestData(r.Context(), id); err != nil {
+		http.Error(w, "Failed to delete pest data", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AppHandler) ListPests(w http.ResponseWriter, r *http.Request) {
+	vineyardID, err := strconv.Atoi(mux.Vars(r)["vineyardID"])
+	if err != nil {
+		http.Error(w, "Invalid vineyard ID", http.StatusBadRequest)
+		return
+	}
+	pests, err := h.PestService.ListPests(r.Context(), vineyardID)
+	if err != nil {
+		http.Error(w, "Failed to list pests", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(pests)
+}
+
+// Weather Handlers
+
+func (h *AppHandler) GetWeatherData(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid weather ID", http.StatusBadRequest)
+		return
+	}
+	data, err := h.WeatherService.GetWeatherData(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to fetch weather data", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(data)
+}
+
+func (h *AppHandler) CreateWeatherData(w http.ResponseWriter, r *http.Request) {
+	var data model.WeatherData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	if err := h.WeatherService.CreateWeatherData(r.Context(), &data); err != nil {
+		http.Error(w, "Failed to create weather data", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(data)
+}
+
+func (h *AppHandler) DeleteWeatherData(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, "Invalid weather ID", http.StatusBadRequest)
+		return
+	}
+	if err := h.WeatherService.DeleteWeatherData(r.Context(), id); err != nil {
+		http.Error(w, "Failed to delete weather data", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AppHandler) ListWeatherData(w http.ResponseWriter, r *http.Request) {
+	vineyardID, err := strconv.Atoi(mux.Vars(r)["vineyardID"])
+	if err != nil {
+		http.Error(w, "Invalid vineyard ID", http.StatusBadRequest)
+		return
+	}
+	weatherData, err := h.WeatherService.ListWeatherData(r.Context(), vineyardID)
+	if err != nil {
+		http.Error(w, "Failed to list weather data", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(weatherData)
 }

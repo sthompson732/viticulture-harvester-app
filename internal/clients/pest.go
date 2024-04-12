@@ -5,7 +5,7 @@
  *              consolidating pest data retrieval and analysis for use in vineyard management.
  * Usage:
  *   - Fetch pest activity reports and recommendations for specific areas.
- *   - Analyze pest data to provide actionable insights and management solutions.
+ *   - Analyze pest data to help provide actionable insights and management solutions.
  * Dependencies:
  *   - External pest control data APIs (e.g., local agricultural extensions or pest control technology providers).
  *   - JSON parsing and HTTP client libraries for making API requests.

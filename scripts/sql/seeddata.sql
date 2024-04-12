@@ -16,3 +16,13 @@ INSERT INTO satellite_imagery (vineyard_id, image_url, bbox, captured_at, resolu
 -- Insert initial data into the soil_data table with realistic data points
 INSERT INTO soil_data (vineyard_id, data, location, sampled_at) VALUES
 (1, '{"ph": 6.7, "nutrients": {"nitrogen": 45, "phosphorus": 15, "potassium": 20}, "organic_matter": 5.6}', 'POINT(-78.6995 38.0675)', '2024-03-20');
+
+-- Insert Pest Data
+INSERT INTO pest_data (vineyard_id, description, observation_date, location) VALUES
+(1, 'Detected mild aphid infestation on younger vines.', '2023-09-15 10:00:00+00', ST_SetSRID(ST_MakePoint(-78.7006, 38.0685), 4326)),
+(1, 'Observed increased ladybug activity, beneficial for aphid control.', '2023-09-20 09:30:00+00', ST_SetSRID(ST_MakePoint(-78.7008, 38.0687), 4326));
+
+-- Insert Weather Data
+INSERT INTO weather_data (vineyard_id, temperature, humidity, observation_time, location) VALUES
+(1, 22.5, 78.9, '2023-09-15 08:00:00+00', ST_SetSRID(ST_MakePoint(-78.7006, 38.0685), 4326)),
+(1, 19.0, 85.2, '2023-09-16 06:00:00+00', ST_SetSRID(ST_MakePoint(-78.7006, 38.0685), 4326));

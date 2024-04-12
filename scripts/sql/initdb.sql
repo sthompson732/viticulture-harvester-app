@@ -51,3 +51,24 @@ CREATE TABLE soil_data (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (vineyard_id) REFERENCES vineyards (id) ON DELETE CASCADE
 );
+
+-- Create Pest Data Table
+CREATE TABLE pest_data (
+    id SERIAL PRIMARY KEY,
+    vineyard_id INTEGER NOT NULL,
+    description TEXT,
+    observation_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    location GEOMETRY(POINT, 4326),  -- Storing the location as a point
+    FOREIGN KEY (vineyard_id) REFERENCES vineyards (id) ON DELETE CASCADE
+);
+
+-- Create Weather Data Table
+CREATE TABLE weather_data (
+    id SERIAL PRIMARY KEY,
+    vineyard_id INTEGER NOT NULL,
+    temperature DECIMAL(4, 2) NOT NULL,  -- Temperature in Celsius
+    humidity DECIMAL(4, 2) NOT NULL,     -- Humidity in percentage
+    observation_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    location GEOMETRY(POINT, 4326),  -- Storing the weather observation location
+    FOREIGN KEY (vineyard_id) REFERENCES vineyards (id) ON DELETE CASCADE
+);
