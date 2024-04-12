@@ -7,74 +7,108 @@
  *     images based on various criteria such as vineyard ID or specific date ranges.
  * Dependencies:
  *   - Relies on db.go for executing SQL queries related to satellite imagery data.
+ *   - Uses storage.go for handling image file uploads to cloud storage.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
+ * Created on: 04/12/2024
  */
 
 package service
 
 import (
 	"context"
-	"strconv" // For converting string IDs to integers
+	"errors"
+	"io"
 	"time"
 
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
+	"github.com/sthompson732/viticulture-harvester-app/internal/storage"
 )
 
+// SatelliteService defines the interface for satellite data management, including CRUD operations and listings by criteria.
 type SatelliteService interface {
-	SaveSatelliteData(ctx context.Context, data *model.SatelliteData) error
-	GetSatelliteData(ctx context.Context, id string) (*model.SatelliteData, error)
-	UpdateSatelliteData(ctx context.Context, data *model.SatelliteData) error
-	DeleteSatelliteData(ctx context.Context, id string) error
-	ListSatelliteDataByVineyard(ctx context.Context, vineyardID string) ([]model.SatelliteData, error)
-	ListSatelliteDataByDateRange(ctx context.Context, vineyardID string, start, end time.Time) ([]model.SatelliteData, error)
+	SaveSatelliteData(ctx context.Context, data *model.SatelliteData, imageData io.Reader) error
+	GetSatelliteData(ctx context.Context, id int) (*model.SatelliteData, error)
+	UpdateSatelliteData(ctx context.Context, data *model.SatelliteData, imageData io.Reader) error
+	DeleteSatelliteData(ctx context.Context, id int) error
+	ListSatelliteDataByVineyard(ctx context.Context, vineyardID int) ([]model.SatelliteData, error)
+	ListSatelliteImageryByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.SatelliteData, error)
 }
 
 type satelliteServiceImpl struct {
-	db *db.DB
+	db      *db.DB
+	storage *storage.StorageService
 }
 
-func NewSatelliteService(db *db.DB) SatelliteService {
-	return &satelliteServiceImpl{db: db}
+// NewSatelliteService creates a new instance of a satellite service that uses specific database and storage service implementations.
+func NewSatelliteService(db *db.DB, storage *storage.StorageService) SatelliteService {
+	return &satelliteServiceImpl{db: db, storage: storage}
 }
 
-func (s *satelliteServiceImpl) SaveSatelliteData(ctx context.Context, data *model.SatelliteData) error {
+// SaveSatelliteData handles the saving of new satellite data along with uploading the associated image to cloud storage.
+func (s *satelliteServiceImpl) SaveSatelliteData(ctx context.Context, data *model.SatelliteData, imageData io.Reader) error {
+	if data == nil {
+		return errors.New("cannot save nil satellite data")
+	}
+	if imageData != nil {
+		imageURL, err := s.storage.UploadImage(ctx, "satellite_images/"+data.ImageURL, imageData)
+		if err != nil {
+			return err
+		}
+		data.ImageURL = imageURL
+	}
 	return s.db.SaveSatelliteImageryMetadata(ctx, data, data.VineyardID)
 }
 
-func (s *satelliteServiceImpl) GetSatelliteData(ctx context.Context, id string) (*model.SatelliteData, error) {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
+// GetSatelliteData retrieves satellite data by its ID.
+func (s *satelliteServiceImpl) GetSatelliteData(ctx context.Context, id int) (*model.SatelliteData, error) {
+	if id <= 0 {
+		return nil, errors.New("invalid satellite data ID")
 	}
-	return s.db.GetSatelliteImagery(ctx, intID)
+	return s.db.GetSatelliteImagery(ctx, id)
 }
 
-func (s *satelliteServiceImpl) UpdateSatelliteData(ctx context.Context, data *model.SatelliteData) error {
+// UpdateSatelliteData updates the metadata for an existing set of satellite data; can also update the associated image.
+func (s *satelliteServiceImpl) UpdateSatelliteData(ctx context.Context, data *model.SatelliteData, imageData io.Reader) error {
+	if data == nil {
+		return errors.New("cannot update nil satellite data")
+	}
+	if data.ID == 0 {
+		return errors.New("invalid satellite data ID")
+	}
+	if imageData != nil {
+		imageURL, err := s.storage.UploadImage(ctx, "satellite_images/"+data.ImageURL, imageData)
+		if err != nil {
+			return err
+		}
+		data.ImageURL = imageURL
+	}
 	return s.db.UpdateSatelliteImagery(ctx, data)
 }
 
-func (s *satelliteServiceImpl) DeleteSatelliteData(ctx context.Context, id string) error {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return err // Proper error handling for ID conversion
+// DeleteSatelliteData removes satellite data from the database by its ID.
+func (s *satelliteServiceImpl) DeleteSatelliteData(ctx context.Context, id int) error {
+	if id <= 0 {
+		return errors.New("invalid satellite data ID")
 	}
-	return s.db.DeleteSatelliteImagery(ctx, intID)
+	return s.db.DeleteSatelliteImagery(ctx, id)
 }
 
-func (s *satelliteServiceImpl) ListSatelliteDataByVineyard(ctx context.Context, vineyardID string) ([]model.SatelliteData, error) {
-	intID, err := strconv.Atoi(vineyardID) // Convert vineyardID from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
+// ListSatelliteDataByVineyard lists all satellite data associated with a specific vineyard.
+func (s *satelliteServiceImpl) ListSatelliteDataByVineyard(ctx context.Context, vineyardID int) ([]model.SatelliteData, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
 	}
-	return s.db.ListSatelliteImageryByVineyard(ctx, intID)
+	return s.db.ListSatelliteImageryByVineyard(ctx, vineyardID)
 }
 
-func (s *satelliteServiceImpl) ListSatelliteDataByDateRange(ctx context.Context, vineyardID string, start, end time.Time) ([]model.SatelliteData, error) {
-	intID, err := strconv.Atoi(vineyardID) // Convert vineyardID from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
+// ListSatelliteImageryByDateRange lists satellite data for a specific vineyard within a given date range.
+func (s *satelliteServiceImpl) ListSatelliteImageryByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.SatelliteData, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
 	}
-	return s.db.ListSatelliteImageryByDateRange(ctx, intID, start, end)
+	if start.After(end) {
+		return nil, errors.New("start date must be before end date")
+	}
+	return s.db.ListSatelliteImageryByDateRange(ctx, vineyardID, start, end)
 }

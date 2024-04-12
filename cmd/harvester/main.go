@@ -20,11 +20,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/sthompson732/github.com/sthompson732/viticulture-harvester-app/internal/clients"
+	"github.com/sthompson732/viticulture-harvester-app/internal/api"
+	"github.com/sthompson732/viticulture-harvester-app/internal/clients"
 	"github.com/sthompson732/viticulture-harvester-app/internal/config"
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/scheduler"
 	"github.com/sthompson732/viticulture-harvester-app/internal/server"
+	"github.com/sthompson732/viticulture-harvester-app/internal/service"
 	"github.com/sthompson732/viticulture-harvester-app/internal/storage"
 )
 
@@ -47,9 +49,26 @@ func main() {
 
 	// Initialize the storage service
 	ctx := context.Background() // Depending on our needs, we might want to use a more specific context
-	storageClient, err := storage.NewStorageService(ctx, cfg.CloudStorage.BucketName)
+	storageService, err := storage.NewStorageService(ctx, cfg.CloudStorage.BucketName, cfg.CloudStorage.CredentialsPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize storage service: %v", err)
+	}
+
+	// Initialize services
+	vineyardService := service.NewVineyardService(database)
+	imageService := service.NewImageService(database, storageService)
+	soilDataService := service.NewSoilDataService(database)
+	pestService := service.NewPestService(database)
+	weatherService := service.NewWeatherService(database)
+	satelliteService := service.NewSatelliteService(database, storageService)
+
+	// Set up the router
+	router := api.NewRouter(vineyardService, imageService, soilDataService, pestService, weatherService, satelliteService)
+
+	// Initialize and start the server
+	srv := server.NewServer(router)
+	if err := srv.Start(cfg.App.Port); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 
 	// Initialize satellite and soil clients
@@ -64,11 +83,5 @@ func main() {
 
 	if err := schedClient.InitializeJobs(ctx); err != nil {
 		log.Fatalf("Failed to initialize scheduler jobs: %v", err)
-	}
-
-	// Initialize and start the server
-	srv := server.NewServer(database, storageClient, satelliteClient, soilClient)
-	if err := srv.Start(cfg.App.Port); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
 	}
 }

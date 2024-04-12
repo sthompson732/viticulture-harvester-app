@@ -15,6 +15,7 @@
 package model
 
 import (
+	"io"
 	"time"
 )
 
@@ -46,6 +47,8 @@ type SatelliteData struct {
 	CapturedAt  time.Time `json:"capturedAt"`
 	Resolution  float64   `json:"resolution"`  // Resolution of the satellite image in meters
 	BoundingBox string    `json:"boundingBox"` // GeoJSON format to specify the precise area the satellite image covers
+	FilePath    string    `json:"filePath"`    // Local or remote file path of the image for uploading
+	ImageFile   io.Reader `json:"-"`           // The image file data, excluded from JSON operations
 }
 
 // SoilData encapsulates soil characteristics fetched from the soil data API.
@@ -60,7 +63,13 @@ type SoilData struct {
 	} `json:"nutrientContents"`
 	SoilType  string    `json:"soilType"`
 	SampledAt time.Time `json:"sampledAt"`
-	Location  string    `json:"location"` // GeoJSON format for precise sampling location
+	Location  Location  `json:"location"` // Modified to use a structured type
+}
+
+// Location struct to hold geospatial coordinates
+type Location struct {
+	X float64 `json:"longitude"` // longitude
+	Y float64 `json:"latitude"`  // latitude
 }
 
 // PestData represents data about pest observations within a vineyard.
@@ -71,7 +80,7 @@ type PestData struct {
 	Type            string    `json:"type"`
 	Severity        string    `json:"severity"`
 	ObservationDate time.Time `json:"observation_date"`
-	Location        string    `json:"location"` // GeoJSON format for exact observation location
+	Location        Location  `json:"location"` // Modified to use a structured type
 }
 
 // WeatherData represents weather conditions observed in a vineyard at a specific time.
@@ -81,5 +90,5 @@ type WeatherData struct {
 	Temperature     float64   `json:"temperature"` // in Celsius
 	Humidity        float64   `json:"humidity"`    // percentage
 	ObservationTime time.Time `json:"observation_time"`
-	Location        string    `json:"location"` // GeoJSON format for exact weather station location
+	Location        Location  `json:"location"` // Modified to use a structured type
 }

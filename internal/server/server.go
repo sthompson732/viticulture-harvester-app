@@ -34,5 +34,7 @@ func NewServer(router *mux.Router) *Server {
 
 func (s *Server) Start(port string) {
 	log.Printf("Starting server on port %s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, s.Router))
+	if err := http.ListenAndServe(":"+port, s.Router); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }

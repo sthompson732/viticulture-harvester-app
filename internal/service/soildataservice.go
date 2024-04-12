@@ -16,6 +16,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
@@ -26,7 +27,9 @@ type SoilDataService interface {
 	GetSoilData(ctx context.Context, id int) (*model.SoilData, error)
 	UpdateSoilData(ctx context.Context, soilData *model.SoilData) error
 	DeleteSoilData(ctx context.Context, id int) error
+	ListSoilData(ctx context.Context, vineyardID int) ([]model.SoilData, error)
 	ListSoilDataByVineyard(ctx context.Context, vineyardID int) ([]model.SoilData, error)
+	ListSoilDataByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.SoilData, error)
 }
 
 type soilDataServiceImpl struct {
@@ -68,9 +71,23 @@ func (sds *soilDataServiceImpl) DeleteSoilData(ctx context.Context, id int) erro
 	return sds.db.DeleteSoilData(ctx, id)
 }
 
+func (sds *soilDataServiceImpl) ListSoilData(ctx context.Context, vineyardID int) ([]model.SoilData, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	return sds.db.ListSoilDataForVineyard(ctx, vineyardID)
+}
+
 func (sds *soilDataServiceImpl) ListSoilDataByVineyard(ctx context.Context, vineyardID int) ([]model.SoilData, error) {
 	if vineyardID <= 0 {
 		return nil, errors.New("invalid vineyard ID")
 	}
 	return sds.db.ListSoilDataForVineyard(ctx, vineyardID)
+}
+
+func (sds *soilDataServiceImpl) ListSoilDataByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.SoilData, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	return sds.db.ListSoilDataByDateRange(ctx, vineyardID, start, end)
 }

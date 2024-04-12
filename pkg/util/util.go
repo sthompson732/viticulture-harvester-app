@@ -15,6 +15,9 @@
 package util
 
 import (
+	"fmt"
+	"time"
+
 	"encoding/json"
 	"net/http"
 )
@@ -41,4 +44,24 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 		return err
 	}
 	return nil
+}
+
+// ParseDateRange parses start and end date strings and returns time.Time objects.
+func ParseDateRange(start, end string) (time.Time, time.Time, error) {
+	const layout = "2006-01-02" // ISO 8601 format
+	startDate, err := time.Parse(layout, start)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid start date: %w", err)
+	}
+
+	endDate, err := time.Parse(layout, end)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid end date: %w", err)
+	}
+
+	if endDate.Before(startDate) {
+		return time.Time{}, time.Time{}, fmt.Errorf("end date %v is before start date %v", endDate, startDate)
+	}
+
+	return startDate, endDate, nil
 }

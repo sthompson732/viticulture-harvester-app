@@ -88,7 +88,6 @@ func NewRouter(vineyardService service.VineyardService, imageService service.Ima
 	router.HandleFunc("/vineyards/{vineyardID}/satellite", handler.ListSatelliteData).Methods("GET")
 	router.HandleFunc("/vineyards/{vineyardID}/satellite/date-range", handler.ListSatelliteImageryByDateRange).Methods("POST")
 	router.HandleFunc("/vineyards/{vineyardID}/satellite/recent", handler.GetRecentSatelliteImages).Methods("GET")
-	router.HandleFunc("/vineyards/{vineyardID}/satellite/date-range", handler.ListSatelliteImageryByDateRange).Methods("POST")
 
 	return router
 }

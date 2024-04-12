@@ -30,6 +30,7 @@ type VineyardService interface {
 	UpdateVineyard(ctx context.Context, vineyard *model.Vineyard) error
 	DeleteVineyard(ctx context.Context, id int) error
 	ListVineyards(ctx context.Context) ([]model.Vineyard, error)
+	GetVineyardWithEnvironmentalData(ctx context.Context, id int) (*model.Vineyard, error)
 }
 
 type vineyardServiceImpl struct {
@@ -73,4 +74,11 @@ func (vs *vineyardServiceImpl) DeleteVineyard(ctx context.Context, id int) error
 
 func (vs *vineyardServiceImpl) ListVineyards(ctx context.Context) ([]model.Vineyard, error) {
 	return vs.db.ListVineyards(ctx)
+}
+
+func (vs *vineyardServiceImpl) GetVineyardWithEnvironmentalData(ctx context.Context, id int) (*model.Vineyard, error) {
+	if id <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	return vs.db.GetVineyardWithEnvironmentalData(ctx, id)
 }

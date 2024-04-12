@@ -78,7 +78,7 @@ func (db *DB) DeleteImage(ctx context.Context, id int) error {
 }
 
 func (db *DB) FindImagesByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.Image, error) {
-	query := `SELECT id, vineyard_id, image_url, description, captured_at, bbox FROM images 
+	query := `SELECT id, vineyard_id, image_url, description, captured_at, bbox FROM images
               WHERE vineyard_id = $1 AND captured_at BETWEEN $2 AND $3`
 	rows, err := db.QueryContext(ctx, query, vineyardID, start, end)
 	if err != nil {
@@ -101,7 +101,7 @@ func (db *DB) FindImagesByDateRange(ctx context.Context, vineyardID int, start, 
 }
 
 func (db *DB) GetRecentImages(ctx context.Context, vineyardID int, limit int) ([]model.Image, error) {
-	query := `SELECT id, vineyard_id, image_url, description, captured_at, bbox FROM images 
+	query := `SELECT id, vineyard_id, image_url, description, captured_at, bbox FROM images
               WHERE vineyard_id = $1 ORDER BY captured_at DESC LIMIT $2`
 	rows, err := db.QueryContext(ctx, query, vineyardID, limit)
 	if err != nil {
@@ -299,11 +299,11 @@ func (db *DB) UpdateSatelliteImagery(ctx context.Context, sd *model.SatelliteDat
 }
 
 // SaveSatelliteImageryMetadata stores metadata about satellite imagery for a vineyard.
-func (db *DB) SaveSatelliteImageryMetadata(ctx context.Context, metadata *model.SatelliteData, vineyardID int) error {
-	const query = `
-    INSERT INTO satellite_imagery (vineyard_id, image_url, captured_at)
-    VALUES ($1, $2, $3)`
-	_, err := db.ExecContext(ctx, query, vineyardID, metadata.ImageURL, metadata.CapturedAt)
+func (db *DB) SaveSatelliteImageryMetadata(ctx context.Context, data *model.SatelliteData, vineyardID int) error {
+	// SQL execution logic here, for example:
+	const query = `INSERT INTO satellite_imagery (vineyard_id, image_url, resolution, captured_at, bounding_box)
+                   VALUES ($1, $2, $3, $4, $5)`
+	_, err := db.ExecContext(ctx, query, vineyardID, data.ImageURL, data.Resolution, data.CapturedAt, data.BoundingBox)
 	if err != nil {
 		return fmt.Errorf("inserting satellite imagery metadata: %w", err)
 	}
@@ -591,7 +591,7 @@ func (db *DB) GetPestData(ctx context.Context, id int) (*model.PestData, error) 
     FROM pest_data
     WHERE id = $1`
 	pest := &model.PestData{}
-	err := db.QueryRowContext(ctx, query, id).Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location.X, &pest.Location.Y, &pest.PestType, &pest.Severity)
+	err := db.QueryRowContext(ctx, query, id).Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location.X, &pest.Location.Y, &pest.Type, &pest.Severity)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving pest data by ID: %w", err)
 	}
@@ -604,7 +604,7 @@ func (db *DB) UpdatePestData(ctx context.Context, pest *model.PestData) error {
     UPDATE pest_data
     SET description = $1, observation_date = $2, location = ST_SetSRID(ST_MakePoint($3, $4), 4326), pest_type = $5, severity = $6
     WHERE id = $7`
-	_, err := db.ExecContext(ctx, query, pest.Description, pest.ObservationDate, pest.Location.X, pest.Location.Y, pest.PestType, pest.Severity, pest.ID)
+	_, err := db.ExecContext(ctx, query, pest.Description, pest.ObservationDate, pest.Location.X, pest.Location.Y, pest.Type, pest.Severity, pest.ID)
 	if err != nil {
 		return fmt.Errorf("updating pest data: %w", err)
 	}
@@ -636,7 +636,7 @@ func (db *DB) ListPestDataByVineyard(ctx context.Context, vineyardID int) ([]mod
 	var pests []model.PestData
 	for rows.Next() {
 		var pest model.PestData
-		if err := rows.Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location.X, &pest.Location.Y, &pest.PestType, &pest.Severity); err != nil {
+		if err := rows.Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location.X, &pest.Location.Y, &pest.Type, &pest.Severity); err != nil {
 			return nil, fmt.Errorf("scanning pest data: %w", err)
 		}
 		pests = append(pests, pest)
@@ -662,7 +662,7 @@ func (db *DB) ListPestDataByDateRange(ctx context.Context, vineyardID int, start
 	var pests []model.PestData
 	for rows.Next() {
 		var pest model.PestData
-		if err := rows.Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location.X, &pest.Location.Y, &pest.PestType, &pest.Severity); err != nil {
+		if err := rows.Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location.X, &pest.Location.Y, &pest.Type, &pest.Severity); err != nil {
 			return nil, fmt.Errorf("scanning pest data: %w", err)
 		}
 		pests = append(pests, pest)
@@ -685,7 +685,7 @@ func (db *DB) FilterPestData(ctx context.Context, vineyardID int, pestType, seve
 	var pests []model.PestData
 	for rows.Next() {
 		var pest model.PestData
-		err := rows.Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location, &pest.PestType, &pest.Severity)
+		err := rows.Scan(&pest.ID, &pest.VineyardID, &pest.Description, &pest.ObservationDate, &pest.Location, &pest.Type, &pest.Severity)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning pest data: %w", err)
 		}

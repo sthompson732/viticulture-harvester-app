@@ -1,0 +1,107 @@
+app:
+  port: "8080"
+  logLevel: "info"
+
+database:
+  type: "postgres"
+  connectionString: "host=our-cloudsql-instance-ip dbname=our-database-name user=our-database-user password=our-database-password sslmode=disable"
+
+cloudStorage:
+  bucketName: "our-gcs-bucket-name"
+  credentialsPath: "/path/to/our/google-credentials.json"
+
+projectID: "our-google-cloud-project-id"  # Google Cloud Project ID
+locationID: "our-google-cloud-location-id"  # Google Cloud Location ID
+
+dataSources:
+  satellite:
+    enabled: true
+    schedule: "0 */6 * * *"  # Every 6 hours
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://api.nasa.gov/planetary/earth/assets"
+    apiKey: "our-nasa-api-key"
+    description: "Ingest satellite data for vineyard analysis."
+
+  eosdis:
+    enabled: true
+    schedule: "0 12 * * *"  # Daily at noon UTC
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://worldview.earthdata.nasa.gov"
+    description: "Daily check of EOSDIS data for environmental monitoring."
+
+  skywatch:
+    enabled: true
+    schedule: "5 15 * * 1"  # Every Monday at 15:05 UTC
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://api.skywatch.co/data/earthcache"
+    apiKey: "our_skywatch_api_key"
+    description: "Weekly ingestion of Skywatch data for advanced analytics."
+
+  eosdaLandViewer:
+    enabled: true
+    schedule: "0 0 1 * *"  # First day of every month at 00:00 UTC
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://api.eos.com/v1/"
+    apiKey: "our_eosda_api_key"
+    description: "Monthly update from EOSDA Land Viewer for land cover analysis."
+
+  soil:
+    enabled: true
+    schedule: "0 */12 * * *"  # Every 12 hours
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://api.soilgrids.org/query"
+    apiKey: "our-soilgrids-api-key"
+    description: "Regular soil data retrieval for nutrient and composition analysis."
+
+  weather:
+    enabled: true
+    schedule: "0/30 * * * *"  # Every 30 minutes
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://api.openweathermap.org/data/2.5/weather"
+    apiKey: "our-openweathermap-api-key"
+    description: "Frequent weather updates for micro-climate monitoring."
+
+  databaseCleanup:
+    enabled: true
+    schedule: "0 0 * * 0"  # Every Sunday at 00:00 UTC
+    timeZone: "UTC"
+    httpMethod: "POST"
+    endpoint: "https://foo.com/api/v1/maintenance/db_cleanup"
+    description: "Weekly database cleanup to maintain performance and storage efficiency."
+
+  reportGeneration:
+    enabled: true
+    schedule: "0 2 * * 0"  # Every Sunday at 02:00 UTC
+    timeZone: "UTC"
+    httpMethod: "POST"
+    endpoint: "https://foo.com/api/v1/report/generate"
+    description: "Weekly generation of comprehensive reports based on collected data."
+
+  systemHealthCheck:
+    enabled: true
+    schedule: "*/15 * * * *"  # Every 15 minutes
+    timeZone: "UTC"
+    httpMethod: "GET"
+    endpoint: "https://foo.com/api/v1/system/health"
+    description: "Frequent health checks to monitor system status and alert on issues."
+
+ingestionSettings:
+  retryPolicy:
+    maxRetries: 3
+    backoffInterval: "30s"
+  parallelIngestions: 5  # Maximum parallel ingestion tasks
+
+notifications:
+  emailService:
+    enabled: true
+    SMTPHost: "smtp.foo.com"
+    SMTPPort: 587
+    Username: "our-email@foo.com"
+    Password: "our-email-password"
+    FromEmail: "no-reply@foo.com"

@@ -1,3 +1,16 @@
+/*
+ * File: weatherservice.go
+ * Description: Provides CRUD operations and queries for managing weather data associated with vineyards.
+ * Usage:
+ *   - Handles creation, retrieval, updating, and deletion of weather records.
+ *   - Supports listing weather data by vineyard and within date ranges.
+ * Dependencies:
+ *   - Uses db.go for database interaction.
+ *   - Utilizes model.WeatherData for data structuring.
+ * Author(s): Shannon Thompson
+ * Created on: 04/12/2024
+ */
+
 package service
 
 import (
