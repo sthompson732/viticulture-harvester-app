@@ -181,8 +181,8 @@ func (db *DB) SaveVineyard(ctx context.Context, vineyard *model.Vineyard) error 
 // GetVineyard retrieves a Vineyard by ID.
 func (db *DB) GetVineyard(ctx context.Context, id int) (*model.Vineyard, error) {
 	const query = `
-    SELECT id, name, location 
-    FROM vineyards 
+    SELECT id, name, location
+    FROM vineyards
     WHERE id = $1`
 	vineyard := &model.Vineyard{}
 	err := db.QueryRowContext(ctx, query, id).Scan(&vineyard.ID, &vineyard.Name, &vineyard.Location)
@@ -195,8 +195,8 @@ func (db *DB) GetVineyard(ctx context.Context, id int) (*model.Vineyard, error) 
 // UpdateVineyard updates a given Vineyard's details.
 func (db *DB) UpdateVineyard(ctx context.Context, vineyard *model.Vineyard) error {
 	const query = `
-    UPDATE vineyards 
-    SET name = $1, location = $2 
+    UPDATE vineyards
+    SET name = $1, location = $2
     WHERE id = $3`
 	_, err := db.ExecContext(ctx, query, vineyard.Name, vineyard.Location, vineyard.ID)
 	if err != nil {
@@ -301,7 +301,7 @@ func (db *DB) UpdateSatelliteImagery(ctx context.Context, sd *model.SatelliteDat
 // SaveSatelliteImageryMetadata stores metadata about satellite imagery for a vineyard.
 func (db *DB) SaveSatelliteImageryMetadata(ctx context.Context, metadata *model.SatelliteData, vineyardID int) error {
 	const query = `
-    INSERT INTO satellite_imagery (vineyard_id, image_url, captured_at) 
+    INSERT INTO satellite_imagery (vineyard_id, image_url, captured_at)
     VALUES ($1, $2, $3)`
 	_, err := db.ExecContext(ctx, query, vineyardID, metadata.ImageURL, metadata.CapturedAt)
 	if err != nil {
@@ -313,8 +313,8 @@ func (db *DB) SaveSatelliteImageryMetadata(ctx context.Context, metadata *model.
 // GetSatelliteImageryForVineyard retrieves all satellite imagery metadata for a specific vineyard.
 func (db *DB) GetSatelliteImageryForVineyard(ctx context.Context, vineyardID int) ([]model.SatelliteData, error) {
 	const query = `
-    SELECT image_url, captured_at 
-    FROM satellite_imagery 
+    SELECT image_url, captured_at
+    FROM satellite_imagery
     WHERE vineyard_id = $1`
 	rows, err := db.QueryContext(ctx, query, vineyardID)
 	if err != nil {
@@ -395,7 +395,7 @@ func (db *DB) ListSatelliteImageryByDateRange(ctx context.Context, vineyardID in
 // SaveSoilData inserts a new SoilData record into the database.
 func (db *DB) SaveSoilData(ctx context.Context, soilData *model.SoilData) error {
 	const query = `
-    INSERT INTO soil_data (vineyard_id, data, location, sampled_at) 
+    INSERT INTO soil_data (vineyard_id, data, location, sampled_at)
     VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326), $5)
     RETURNING id`
 	jsonData, err := json.Marshal(soilData)
@@ -701,7 +701,7 @@ func (db *DB) FilterPestData(ctx context.Context, vineyardID int, pestType, seve
 // SaveWeatherData inserts a new WeatherData record into the database.
 func (db *DB) SaveWeatherData(ctx context.Context, weather *model.WeatherData) error {
 	const query = `
-    INSERT INTO weather_data (vineyard_id, temperature, humidity, observation_time, location) 
+    INSERT INTO weather_data (vineyard_id, temperature, humidity, observation_time, location)
     VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($5, $6), 4326))
     RETURNING id`
 	err := db.QueryRowContext(ctx, query, weather.VineyardID, weather.Temperature, weather.Humidity, weather.ObservationTime, weather.Location.X, weather.Location.Y).Scan(&weather.ID)

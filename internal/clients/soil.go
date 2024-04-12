@@ -38,10 +38,15 @@ func NewSoilClient(cfg *config.Config) *SoilClient {
 
 // FetchData queries the soil data API and returns structured information.
 func (c *SoilClient) FetchData(ctx context.Context, lat, long string) (*model.SoilData, error) {
+	soilConfig, ok := c.Config.DataSources["soil"]
+	if !ok {
+		return nil, fmt.Errorf("soil data source configuration not found")
+	}
+
 	reqURL := fmt.Sprintf("%s?latitude=%s&longitude=%s&api_key=%s",
-		c.Config.DataSources.Soil.Endpoint,
+		soilConfig.Endpoint,
 		lat, long,
-		c.Config.DataSources.Soil.APIKey,
+		soilConfig.APIKey,
 	)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", reqURL, nil)

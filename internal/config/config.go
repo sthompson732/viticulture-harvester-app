@@ -26,6 +26,8 @@ type Config struct {
 	DataSources       map[string]DataSourceConfig `yaml:"dataSources"` // Changed to a map
 	IngestionSettings IngestionSettingsConfig     `yaml:"ingestionSettings"`
 	Notifications     NotificationsConfig         `yaml:"notifications"`
+	ProjectID         string                      `yaml:"projectID"`
+	LocationID        string                      `yaml:"locationID"`
 }
 
 type AppConfig struct {
