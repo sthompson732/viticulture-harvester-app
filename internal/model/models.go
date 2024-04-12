@@ -20,7 +20,7 @@ import (
 
 // Vineyard represents the data model for a vineyard, including its location and soil health.
 type Vineyard struct {
-	ID               uint            `json:"id"`
+	ID               int             `json:"id"`
 	Name             string          `json:"name"`
 	Location         string          `json:"location"`    // Consider using a more complex type for geolocation data
 	BoundingBox      string          `json:"boundingBox"` // GeoJSON format for more accurate geospatial representation
@@ -30,8 +30,8 @@ type Vineyard struct {
 
 // Image represents metadata about an image related to a vineyard.
 type Image struct {
-	ID          uint      `json:"id"`
-	VineyardID  uint      `json:"vineyard_id"`
+	ID          int       `json:"id"`
+	VineyardID  int       `json:"vineyard_id"`
 	URL         string    `json:"url"`
 	Description string    `json:"description"`
 	CapturedAt  time.Time `json:"capturedAt"`
@@ -40,8 +40,8 @@ type Image struct {
 
 // SatelliteData represents the structure of data fetched from the satellite imagery API.
 type SatelliteData struct {
-	ID          uint      `json:"id"`
-	VineyardID  uint      `json:"vineyard_id"`
+	ID          int       `json:"id"`
+	VineyardID  int       `json:"vineyard_id"`
 	ImageURL    string    `json:"imageUrl"`
 	CapturedAt  time.Time `json:"capturedAt"`
 	Resolution  float64   `json:"resolution"`  // Resolution of the satellite image in meters
@@ -50,8 +50,8 @@ type SatelliteData struct {
 
 // SoilData encapsulates soil characteristics fetched from the soil data API.
 type SoilData struct {
-	ID               uint    `json:"id"`
-	VineyardID       uint    `json:"vineyard_id"`
+	ID               int     `json:"id"`
+	VineyardID       int     `json:"vineyard_id"`
 	MoistureLevel    float64 `json:"moistureLevel"`
 	NutrientContents struct {
 		Nitrogen   float64 `json:"nitrogen"`
@@ -65,8 +65,8 @@ type SoilData struct {
 
 // PestData represents data about pest observations within a vineyard.
 type PestData struct {
-	ID              uint      `json:"id"`
-	VineyardID      uint      `json:"vineyard_id"`
+	ID              int       `json:"id"`
+	VineyardID      int       `json:"vineyard_id"`
 	Description     string    `json:"description"`
 	Type            string    `json:"type"`
 	Severity        string    `json:"severity"`
@@ -76,8 +76,8 @@ type PestData struct {
 
 // WeatherData represents weather conditions observed in a vineyard at a specific time.
 type WeatherData struct {
-	ID              uint      `json:"id"`
-	VineyardID      uint      `json:"vineyard_id"`
+	ID              int       `json:"id"`
+	VineyardID      int       `json:"vineyard_id"`
 	Temperature     float64   `json:"temperature"` // in Celsius
 	Humidity        float64   `json:"humidity"`    // percentage
 	ObservationTime time.Time `json:"observation_time"`
