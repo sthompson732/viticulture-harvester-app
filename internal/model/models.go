@@ -68,6 +68,8 @@ type PestData struct {
 	ID              uint      `json:"id"`
 	VineyardID      uint      `json:"vineyard_id"`
 	Description     string    `json:"description"`
+	Type            string    `json:"type"`
+	Severity        string    `json:"severity"`
 	ObservationDate time.Time `json:"observation_date"`
 	Location        string    `json:"location"` // GeoJSON format for exact observation location
 }

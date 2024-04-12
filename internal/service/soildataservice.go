@@ -11,20 +11,22 @@
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */
-
 package service
 
 import (
 	"context"
-	"strconv" // For converting string IDs to integers
+	"errors"
 
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
 )
 
 type SoilDataService interface {
-	UpdateSoilData(ctx context.Context, vineyardID string, soilData *model.SoilData) error
-	GetSoilData(ctx context.Context, vineyardID string) (*model.SoilData, error)
+	CreateSoilData(ctx context.Context, soilData *model.SoilData) error
+	GetSoilData(ctx context.Context, id int) (*model.SoilData, error)
+	UpdateSoilData(ctx context.Context, soilData *model.SoilData) error
+	DeleteSoilData(ctx context.Context, id int) error
+	ListSoilDataByVineyard(ctx context.Context, vineyardID int) ([]model.SoilData, error)
 }
 
 type soilDataServiceImpl struct {
@@ -35,18 +37,40 @@ func NewSoilDataService(db *db.DB) SoilDataService {
 	return &soilDataServiceImpl{db: db}
 }
 
-func (sds *soilDataServiceImpl) UpdateSoilData(ctx context.Context, vineyardID string, soilData *model.SoilData) error {
-	intID, err := strconv.Atoi(vineyardID) // Convert id from string to int
-	if err != nil {
-		return err // Proper error handling for ID conversion
+func (sds *soilDataServiceImpl) CreateSoilData(ctx context.Context, soilData *model.SoilData) error {
+	if soilData == nil {
+		return errors.New("cannot create nil soil data")
 	}
-	return sds.db.UpdateSoilData(ctx, intID, soilData)
+	return sds.db.SaveSoilData(ctx, soilData)
 }
 
-func (sds *soilDataServiceImpl) GetSoilData(ctx context.Context, vineyardID string) (*model.SoilData, error) {
-	intID, err := strconv.Atoi(vineyardID) // Convert id from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
+func (sds *soilDataServiceImpl) GetSoilData(ctx context.Context, id int) (*model.SoilData, error) {
+	if id <= 0 {
+		return nil, errors.New("invalid soil data ID")
 	}
-	return sds.db.GetSoilDataForVineyard(ctx, intID)
+	return sds.db.GetSoilData(ctx, id)
+}
+
+func (sds *soilDataServiceImpl) UpdateSoilData(ctx context.Context, soilData *model.SoilData) error {
+	if soilData == nil {
+		return errors.New("cannot update nil soil data")
+	}
+	if soilData.ID == 0 {
+		return errors.New("invalid soil data ID")
+	}
+	return sds.db.UpdateSoilData(ctx, soilData)
+}
+
+func (sds *soilDataServiceImpl) DeleteSoilData(ctx context.Context, id int) error {
+	if id <= 0 {
+		return errors.New("invalid soil data ID")
+	}
+	return sds.db.DeleteSoilData(ctx, id)
+}
+
+func (sds *soilDataServiceImpl) ListSoilDataByVineyard(ctx context.Context, vineyardID int) ([]model.SoilData, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	return sds.db.ListSoilDataForVineyard(ctx, vineyardID)
 }

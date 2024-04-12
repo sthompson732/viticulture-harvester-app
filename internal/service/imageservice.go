@@ -16,53 +16,85 @@ package service
 
 import (
 	"context"
-	"strconv" // For converting string IDs to integers
+	"errors"
+	"time"
 
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
-	"github.com/sthompson732/viticulture-harvester-app/internal/storage"
 )
 
 type ImageService interface {
-	ListImages(ctx context.Context, vineyardID string) ([]model.Image, error)
 	SaveImage(ctx context.Context, image *model.Image) error
-	GetImage(ctx context.Context, id string) (*model.Image, error)
-	DeleteImage(ctx context.Context, id string) error
+	GetImage(ctx context.Context, id int) (*model.Image, error)
+	UpdateImage(ctx context.Context, image *model.Image) error
+	DeleteImage(ctx context.Context, id int) error
+	ListImagesByVineyard(ctx context.Context, vineyardID int) ([]model.Image, error)
+	FindImagesByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.Image, error)
+	GetRecentImages(ctx context.Context, vineyardID int, limit int) ([]model.Image, error)
 }
 
 type imageServiceImpl struct {
-	db      *db.DB
-	storage *storage.StorageService
+	db *db.DB
 }
 
-func NewImageService(db *db.DB, storage *storage.StorageService) ImageService {
-	return &imageServiceImpl{db: db, storage: storage}
-}
-
-func (is *imageServiceImpl) ListImages(ctx context.Context, vineyardID string) ([]model.Image, error) {
-	intID, err := strconv.Atoi(vineyardID) // Convert vineyardID from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
-	}
-	return is.db.GetSatelliteImageryForVineyard(ctx, intID)
+func NewImageService(db *db.DB) ImageService {
+	return &imageServiceImpl{db: db}
 }
 
 func (is *imageServiceImpl) SaveImage(ctx context.Context, image *model.Image) error {
+	if image == nil {
+		return errors.New("cannot save nil image")
+	}
 	return is.db.SaveImage(ctx, image)
 }
 
-func (is *imageServiceImpl) GetImage(ctx context.Context, id string) (*model.Image, error) {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
+func (is *imageServiceImpl) GetImage(ctx context.Context, id int) (*model.Image, error) {
+	if id <= 0 {
+		return nil, errors.New("invalid image ID")
 	}
-	return is.db.GetImage(ctx, intID)
+	return is.db.GetImage(ctx, id)
 }
 
-func (is *imageServiceImpl) DeleteImage(ctx context.Context, id string) error {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return err // Proper error handling for ID conversion
+func (is *imageServiceImpl) UpdateImage(ctx context.Context, image *model.Image) error {
+	if image == nil {
+		return errors.New("cannot update nil image")
 	}
-	return is.db.DeleteImage(ctx, intID)
+	if image.ID == 0 {
+		return errors.New("invalid image ID")
+	}
+	return is.db.UpdateImage(ctx, image)
+}
+
+func (is *imageServiceImpl) DeleteImage(ctx context.Context, id int) error {
+	if id <= 0 {
+		return errors.New("invalid image ID")
+	}
+	return is.db.DeleteImage(ctx, id)
+}
+
+func (is *imageServiceImpl) ListImagesByVineyard(ctx context.Context, vineyardID int) ([]model.Image, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	return is.db.ListImagesForVineyard(ctx, vineyardID)
+}
+
+func (is *imageServiceImpl) FindImagesByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.Image, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	if start.After(end) {
+		return nil, errors.New("start date must be before end date")
+	}
+	return is.db.FindImagesByDateRange(ctx, vineyardID, start, end)
+}
+
+func (is *imageServiceImpl) GetRecentImages(ctx context.Context, vineyardID int, limit int) ([]model.Image, error) {
+	if vineyardID <= 0 {
+		return nil, errors.New("invalid vineyard ID")
+	}
+	if limit <= 0 {
+		return nil, errors.New("limit must be a positive number")
+	}
+	return is.db.GetRecentImages(ctx, vineyardID, limit)
 }

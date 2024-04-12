@@ -61,6 +61,8 @@ CREATE TABLE pest_data (
     description TEXT,
     observation_date TIMESTAMP WITH TIME ZONE NOT NULL,
     location GEOMETRY(POINT, 4326),
+    pest_type VARCHAR(255),
+    severity VARCHAR(255),
     FOREIGN KEY (vineyard_id) REFERENCES vineyards(id) ON DELETE CASCADE
 );
 

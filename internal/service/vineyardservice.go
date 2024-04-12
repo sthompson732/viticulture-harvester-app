@@ -9,7 +9,7 @@
  *   - Coordinates with db.go to perform database transactions and with other services for related data.
  * Dependencies:
  *   - Relies on db.go for database interactions.
- *   - Integrates with imageservice.go and soildataservice.go for comprehensive data management.
+ *   - Integrates with imageservice.go, soildataservice.go, pestservice.go, and weatherservice.go for comprehensive data management.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */
@@ -18,56 +18,57 @@ package service
 
 import (
 	"context"
-	"strconv" // For converting string IDs to integers if IDs are integers in the database
+	"errors"
 
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
-	"github.com/sthompson732/viticulture-harvester-app/internal/storage"
 )
 
 type VineyardService interface {
 	CreateVineyard(ctx context.Context, vineyard *model.Vineyard) error
-	GetVineyard(ctx context.Context, id string) (*model.Vineyard, error)
-	UpdateVineyard(ctx context.Context, id string, vineyard *model.Vineyard) error
-	DeleteVineyard(ctx context.Context, id string) error
+	GetVineyard(ctx context.Context, id int) (*model.Vineyard, error)
+	UpdateVineyard(ctx context.Context, vineyard *model.Vineyard) error
+	DeleteVineyard(ctx context.Context, id int) error
 	ListVineyards(ctx context.Context) ([]model.Vineyard, error)
 }
 
 type vineyardServiceImpl struct {
-	db      *db.DB
-	storage *storage.StorageService
+	db *db.DB
 }
 
-func NewVineyardService(db *db.DB, storage *storage.StorageService) VineyardService {
-	return &vineyardServiceImpl{db: db, storage: storage}
+func NewVineyardService(db *db.DB) VineyardService {
+	return &vineyardServiceImpl{db: db}
 }
 
 func (vs *vineyardServiceImpl) CreateVineyard(ctx context.Context, vineyard *model.Vineyard) error {
+	if vineyard == nil {
+		return errors.New("cannot create a nil vineyard")
+	}
 	return vs.db.SaveVineyard(ctx, vineyard)
 }
 
-func (vs *vineyardServiceImpl) GetVineyard(ctx context.Context, id string) (*model.Vineyard, error) {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return nil, err // Proper error handling for ID conversion
+func (vs *vineyardServiceImpl) GetVineyard(ctx context.Context, id int) (*model.Vineyard, error) {
+	if id <= 0 {
+		return nil, errors.New("invalid vineyard ID")
 	}
-	return vs.db.GetVineyard(ctx, intID)
+	return vs.db.GetVineyard(ctx, id)
 }
 
-func (vs *vineyardServiceImpl) UpdateVineyard(ctx context.Context, id string, vineyard *model.Vineyard) error {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return err // Proper error handling for ID conversion
+func (vs *vineyardServiceImpl) UpdateVineyard(ctx context.Context, vineyard *model.Vineyard) error {
+	if vineyard == nil {
+		return errors.New("cannot update a nil vineyard")
 	}
-	return vs.db.UpdateVineyard(ctx, intID, vineyard)
+	if vineyard.ID == 0 {
+		return errors.New("invalid vineyard ID")
+	}
+	return vs.db.UpdateVineyard(ctx, vineyard)
 }
 
-func (vs *vineyardServiceImpl) DeleteVineyard(ctx context.Context, id string) error {
-	intID, err := strconv.Atoi(id) // Convert id from string to int
-	if err != nil {
-		return err // Proper error handling for ID conversion
+func (vs *vineyardServiceImpl) DeleteVineyard(ctx context.Context, id int) error {
+	if id <= 0 {
+		return errors.New("invalid vineyard ID")
 	}
-	return vs.db.DeleteVineyard(ctx, intID)
+	return vs.db.DeleteVineyard(ctx, id)
 }
 
 func (vs *vineyardServiceImpl) ListVineyards(ctx context.Context) ([]model.Vineyard, error) {
