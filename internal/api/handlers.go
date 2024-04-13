@@ -1,3 +1,24 @@
+/*
+ * File: handlers.go
+ * Description: Provides HTTP handlers that respond to web requests. This file acts as a controller layer in the MVC pattern,
+ *              interfacing with the service layer to handle business logic and data retrieval. It processes client requests,
+ *              invokes the appropriate actions on the models via the services, and returns the proper responses.
+ *
+ * Usage:
+ *   - Each function in this file handles a specific type of HTTP request; they interpret request parameters,
+ *     pass these parameters to the relevant services, and format the response appropriately.
+ *   - Functions are mapped to routes in `router.go` and are designed to be used with the Gorilla Mux router or a similar multiplexer.
+ *
+ * Dependencies:
+ *   - Gorilla Mux for routing the HTTP requests to the appropriate handlers.
+ *   - Service packages which encapsulate the business logic of the application.
+ *   - The `model` package for structuring request and response data.
+ *   - Utility functions from `util.go` for common operations like JSON encoding/decoding.
+ *
+ * Author(s): Shannon Thompson
+ * Created on: 04/12/2024
+ */
+
 package api
 
 import (

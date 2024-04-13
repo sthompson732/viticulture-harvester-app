@@ -36,51 +36,53 @@ Before you begin, ensure you have installed the following software on your syste
 
 ```text
 /viticulture-harvester-app
-    /cmd
-        /harvester                  # Main application entry point
-            main.go
-    /internal                       # Application's internal logic
-        /api                        # API endpoints and server setup using Gin
-            router.go               # Gin router setup
-            handlers.go             # API handlers
-            router_test.go          # Tests for the Gin router setup
-            handlers_test.go        # Tests for the API handlers
-        /clients                    # External service clients
-            satellite.go            # Client for satellite data API
-            satellite_test.go       # Tests for satellite client
-            soil.go                 # Client for soil data API
-            soil_test.go            # Tests for soil client
-        /config                     # Configuration management
-            config.go               # Centralized configuration logic
-            config_test.go          # Tests for configuration logic
-        /db                         # Database Interactions
-            db.go                   # Postgres Interaction
-            db_test.go              # Tests for database logic
-        /model                      # Data models
-            models.go               # Structs for database and JSON
-            models_test.go          # Tests for data models
-        /scheduler                  # Scheduler Interactions
-            scheduler.go            # GCP Cloud Scheduler Interaction
-        /service                    # Service Interfaces
-            imageservice.go         # Service for Satellite Image Interface
-            soildataservice.go      # Service for Soil Data Interface
-            vineyardservice.go      # Service for Vineyard Data Interface
-        /storage                    # Cloud Storage Interactions
-            storage.go              # GCP Cloud Storage Interaction
-            storage_test.go         # Tests for storage logic
-    /pkg                            # External packages that might be used across projects
-        /util                       # Utility functions
-            util.go                 # Helper functions and utilities
-            util_test.go            # Tests for utility functions
-    /configs                        # Configuration files
-        config.yaml                 # Application configurations
-    /scripts                        # Auxiliary scripts, e.g., for setup
-        setup.sh                    # Setup script for initializing the application
-    go.mod                          # Go module definitions
-    go.sum                          # Go module checksums
-    Dockerfile                      # Dockerfile for containerizing the application
-    .gitignore                      # Git ignore file
-    README.md                       # Project overview and setup instructions
+/cmd
+    /harvester
+        main.go                # Initializes services and starts the server.
+/configs
+    config.yaml                # Contains all application configurations.
+/internal
+    /api
+        router.go              # Sets up HTTP routes and connects them with handlers.
+        handlers.go            # Processes requests and returns responses.
+    /clients
+        satelliteclient.go      # Handles requests to satellite data APIs.
+        soilclient.go           # Handles requests to soil data APIs.
+        pestclient.go           # Handles requests to pest data APIs.
+        weatherclient.go        # Handles requests to weather data APIs.
+    /config
+        config.go              # Loads and parses the config.yaml file.
+    /db
+        db.go                  # Manages database interactions.
+    /model
+        models.go              # Structures corresponding to database tables.
+    /scheduler
+        scheduler.go           # Manages timed data fetching jobs.
+    /server
+        server.go              # Configures and runs the HTTP server.
+    /service
+        imageservice.go        # Manages image data operations.
+        pestservice.go         # Manages pest data operations.
+        satelliteservice.go    # Manages satellite imagery operations.
+        soilservice.go         # Manages soil data operations.
+        vineyardservice.go     # Manages vineyard data operations.
+        weatherservice.go      # Manages weather data operations.
+    /storage
+        storage.go             # Manages file storage operations.
+/pkg
+    /util
+        util.go                # Provides common utility functions.
+/scripts
+    setup.sh                   # Sets up the application environment.
+    /sql
+        initdb.sql             # Initializes the database with the required schema.
+        seed_data.sql          # Populates the database with initial data.
+Dockerfile                     # For building the application's Docker container.
+.gitignore                     # Specifies files to ignore in git operations.
+go.mod                         # Manages dependencies.
+go.sum                         # Contains hashes of dependencies for verification.
+README.md                      # Project documentation and setup instructions.
+
 ```
 
 ### Environment Setup
