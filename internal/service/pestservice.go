@@ -1,14 +1,7 @@
 /*
- * File: pestservie.go
- * Description: Manages pest data interactions, providing services to create, retrieve, update, and delete
- *              pest observations within vineyards. This service handles complex queries like filtering pests
- *              by type and severity and listing pests by vineyard or within a date range.
- * Usage:
- *   - Supports operations for managing pest data, crucial for monitoring and managing vineyard health.
- *   - Interacts with the db.go for CRUD operations on the pest_data table.
- * Dependencies:
- *   - db.go: Used for executing SQL queries related to pest data.
- *   - model/pest.go: Defines the PestData struct which models the pest_data table in the database.
+ * pestservice.go: Manages pest data for vineyards.
+ * Provides CRUD and query functionality for pest observations.
+ * Usage: Supports detailed management and analysis of pest data.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

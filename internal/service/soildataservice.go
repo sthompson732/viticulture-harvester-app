@@ -1,13 +1,7 @@
 /*
- * File: soildataservice.go
- * Description: Manages soil data interactions, providing services to retrieve and update soil health
- *              information from various data sources configured within the application.
- * Usage:
- *   - Facilitates operations such as GetSoilData and UpdateSoilData to manage soil information linked to vineyards.
- *   - Interacts with external soil data APIs or local databases to fetch and store soil data.
- * Dependencies:
- *   - db.go for executing SQL queries related to soil data.
- *   - client.go or similar modules for fetching soil data from external APIs.
+ * soildataservice.go: Services for managing soil data.
+ * Facilitates retrieval and update of soil health information.
+ * Usage: Used for fetching and updating soil data via external APIs or databases.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

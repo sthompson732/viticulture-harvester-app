@@ -1,23 +1,16 @@
 /*
- * File: scheduler.go
- * Description: Manages the scheduling of automated tasks for the Viniculture Data Harvester application.
- *              This module uses Google Cloud Scheduler to orchestrate tasks like
- *              satellite data retrieval, weather data updates, and soil data synchronization on a regular
- *              schedule.
+ * scheduler.go: Orchestrates timed data fetching tasks using Google Cloud Scheduler.
  * Usage:
  *   - Configures and initiates scheduled jobs that trigger data retrieval and processing tasks.
  *   - Ensures tasks are executed at specified intervals, handling retries and logging as necessary.
  *   - Utilizes cron syntax to define job schedules.
- * Dependencies:
+* Dependencies:
  *   - Requires external scheduling APIs or local cron services.
  *   - Interacts with client modules (e.g., satellite.go, weather.go, soil.go) to set up data fetch operations.
  *   - Uses service modules (e.g., imageservice.go, soildataservice.go) to process and store the fetched data.
- * Example:
- *   - A scheduler job might be set to retrieve satellite imagery every 12 hours and update soil data every 24 hours.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
- */
-
+ * Created on: 04/12/2024
+*/
 package scheduler
 
 import (

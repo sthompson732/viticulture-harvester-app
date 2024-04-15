@@ -1,15 +1,9 @@
 /*
- * File: satelliteservice.go
- * Description: Manages satellite imagery data interactions, providing services to retrieve, update, and delete satellite
- *              imagery information related to vineyards.
- * Usage:
- *   - Facilitates operations such as storing new satellite images, updating metadata, deleting entries, and retrieving
- *     images based on various criteria such as vineyard ID or specific date ranges.
- * Dependencies:
- *   - Relies on db.go for executing SQL queries related to satellite imagery data.
- *   - Uses storage.go for handling image file uploads to cloud storage.
+ * satelliteservice.go: Handles satellite imagery data for vineyards.
+ * Provides functions for storing, updating, and retrieving high-resolution imagery.
+ * Usage: Used to manage satellite data integrations and queries.
  * Author(s): Shannon Thompson
- * Created on: 04/12/2024
+ * Created on: 04/10/2024
  */
 
 package service

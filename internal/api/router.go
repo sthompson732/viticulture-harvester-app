@@ -1,14 +1,7 @@
 /*
- * File: router.go
- * Description: Configures and initializes the API routes for the application. This module uses Gorilla Mux
- *              to create a router and define routes that are connected to their respective handlers in the
- *              handlers.go module.
- * Usage:
- *   - Initialize the router and define all route mappings.
- *   - Use middleware for logging and other pre-processing needs.
- * Dependencies:
- *   - Gorilla Mux for route management.
- *   - Handlers for processing requests.
+ * router.go: Configures HTTP routes and middleware.
+ * Maps endpoints to handler functions, ensuring proper request routing.
+ * Usage: Employed by main.go to setup HTTP server routing.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

@@ -1,6 +1,5 @@
 /*
- * File: weather.go
- * Description: Interacts with meteorological data providers to retrieve current and forecasted
+ * weather.go: Interacts with meteorological data providers to retrieve current and forecasted
  *              weather conditions. This client utilizes APIs to integrate weather data into the
  *              vineyard management system, enhancing decision-making processes with up-to-date
  *              weather information.
@@ -11,7 +10,7 @@
  *   - External weather information services (e.g., OpenWeatherMap, WeatherAPI).
  *   - HTTP client libraries for making API requests.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
+ * Created on: 04/14/2024
  */
 
 package client

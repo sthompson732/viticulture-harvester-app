@@ -1,15 +1,9 @@
 /*
- * File: soil.go
- * Description: Retrieves soil health data from various soil data services, enabling detailed soil analysis
- *              for precision agriculture applications in vineyards.
- * Usage:
- *   - Query soil composition, moisture levels, and other relevant soil health indicators.
- *   - Use data to inform soil management practices and interventions.
- * Dependencies:
- *   - Soil data providers (e.g., SoilGrids, local agricultural services).
- *   - Libraries for handling HTTP requests and JSON data.
+ * soilclient.go: Interacts with external APIs to fetch soil data.
+ * Provides methods to retrieve soil health information from third-party services.
+ * Usage: Used by soildataservice to enhance soil data management with external insights.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
+ * Created on: 04/11/2024
  */
 package client
 

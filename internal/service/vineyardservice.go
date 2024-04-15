@@ -1,15 +1,7 @@
 /*
- * File: vineyardservice.go
- * Description: Handles business logic related to vineyard management. Provides methods for creating,
- *              retrieving, updating, and deleting vineyard entries, as well as interfacing with related data like
- *              images and soil data.
- * Usage:
- *   - Implements business processes associated with vineyards, such as registering new vineyards or updating
- *     existing entries.
- *   - Coordinates with db.go to perform database transactions and with other services for related data.
- * Dependencies:
- *   - Relies on db.go for database interactions.
- *   - Integrates with imageservice.go, soildataservice.go, pestservice.go, and weatherservice.go for comprehensive data management.
+ * vineyardservice.go: Business logic for vineyard management.
+ * Provides functions for CRUD operations on vineyards.
+ * Usage: Interacts with database for vineyard data manipulation.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

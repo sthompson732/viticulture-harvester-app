@@ -1,15 +1,9 @@
 /*
- * File: satellite.go
- * Description: Interacts with satellite data providers to fetch remote sensing and satellite imagery.
- *              Handles API calls and processes responses for use in vineyard monitoring and management.
- * Usage:
- *   - Retrieve satellite images and metadata for specified coordinates and times.
- *   - Process and store imagery data in a compatible format for analysis.
- * Dependencies:
- *   - External satellite imagery APIs (e.g., NASA, ESA).
- *   - JSON parsing and HTTP client libraries.
+ * satelliteclient.go: Fetches satellite imagery from external services.
+ * Manages API interactions to retrieve satellite data relevant to vineyards.
+ * Usage: Implements retrieval logic used by satelliteservice for data collection.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
+ * Created on: 04/12/2024
  */
 
 package client

@@ -1,12 +1,7 @@
 /*
- * File: config.go
- * Description: Manages the application's configuration settings, loading them from files or environment variables.
- *              This module centralizes configuration handling to facilitate access to settings like database
- *              credentials, API keys, and service URLs.
- * Usage:
- *   - Load and access configuration settings throughout the application.
- * Dependencies:
- *   - TODO: Viper or a similar package for configuration management.
+ * config.go: Manages configuration settings loaded from YAML files.
+ * Centralizes access to all configurable parameters of the application.
+ * Usage: Used at startup to configure services and parameters.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

@@ -1,15 +1,9 @@
 /*
- * File: imageservice.go
- * Description: Provides services for managing image data related to vineyards. Handles CRUD
- *              operations for images, interfacing with both the database and external storage solutions.
- * Usage:
- *   - Offers methods like SaveImage, GetImage, DeleteImage, and ListImages to manage image records.
- *   - Utilizes storage interfaces to save and retrieve image files, typically from cloud storage.
- * Dependencies:
- *   - db.go for database operations related to image data.
- *   - storage.go for interfacing with external file storage systems (e.g., AWS S3, Google Cloud Storage).
+ * imageservice.go: Manages image data operations.
+ * Handles CRUD operations and interfaces with storage solutions.
+ * Usage: Provides methods to save, fetch, and manage images related to vineyards.
  * Author(s): Shannon Thompson
- * Created on: 04/12/2024
+ * Created on: 04/10/2024
  */
 
 package service

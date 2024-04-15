@@ -1,14 +1,7 @@
 /*
- * File: main.go
- * Description: Entry point of the Viniculture Data Harvester application. This file initializes
- *              all necessary services, sets up the HTTP router, and starts the server.
- * Usage:
- *   - Initializes database connections, configures services, and prepares the HTTP server.
- *   - Routes are set up using the router.go configurations, and the server is started on a specified port.
- * Dependencies:
- *   - server.go for starting the server.
- *   - router.go for HTTP routing configurations.
- *   - service files like vineyardservice.go for business logic.
+ * main.go: Entry point of the Viticulture Data Harvester.
+ * Initializes services and starts the HTTP server.
+ * Usage: Executes as the starting runtime point, configuring services and routing.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

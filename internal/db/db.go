@@ -1,13 +1,7 @@
 /*
- * File: db.go
- * Description: Manages database operations using the database/sql package for direct SQL execution.
- *              Handles all interactions like connections, query executions, and transaction management.
- * Usage:
- *   - Directly execute SQL statements for CRUD operations and more complex transactions.
- *   - Manage database connections and ensure query performance optimization.
- * Dependencies:
- *   - PostgreSQL for database operations.
- *   - database/sql package for handling all SQL operations.
+ * db.go: Database interaction layer for the app.
+ * Contains methods for executing CRUD operations on the database.
+ * Usage: Utilized by service layers to access and manipulate database records.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

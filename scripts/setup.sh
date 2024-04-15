@@ -1,3 +1,10 @@
+/*
+ * setup.sh: Shell script for setting up the application environment.
+ * Runs commands to configure the database and other services.
+ * Usage: Run this script to prepare the application for first-time use.
+ * Author(s): Shannon Thompson
+ * Created on: 04/10/2024
+ */
 #!/bin/bash
 
 # Ensuring that the Go is installed

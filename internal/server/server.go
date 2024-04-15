@@ -1,14 +1,7 @@
 /*
- * File: server.go
- * Description: Initializes and configures the HTTP server. This module sets up the server with the necessary
- *              middleware, routes, and starts the server. It uses the `gin` framework for routing and middleware
- *              handling.
- * Usage:
- *   - Create an instance of the server using NewServer and pass the configured router.
- *   - Start the server on a specified port using the Start method.
- * Dependencies:
- *   - Gin-Gonic for routing.
- *   - Custom middleware for logging and error handling.
+ * server.go: Initializes and manages the HTTP server.
+ * Sets up routing and starts listening for requests.
+ * Usage: Provides the runtime environment for the web interface.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */

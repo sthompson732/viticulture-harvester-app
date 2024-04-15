@@ -1,6 +1,5 @@
 /*
- * File: util.go
- * Description: Provides utility functions like JSON response formatting, error handling, and other
+ * File: util.go: Provides utility functions like JSON response formatting, error handling, and other
  *              common tasks that are used across various parts of the application.
  * Usage:
  *   - Encode objects to JSON for HTTP responses.

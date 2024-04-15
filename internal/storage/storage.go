@@ -1,11 +1,7 @@
 /*
- * File: storage.go
- * Description: Handles file storage operations, particularly for storing and retrieving image files from cloud storage.
- *              Integrates with Google Cloud Storage.
- * Usage:
- *   - Upload, download, and delete files using methods provided.
- * Dependencies:
- *   - Cloud storage SDKs (e.g., AWS SDK, Google Cloud SDK).
+ * storage.go: Manages file operations in cloud storage.
+ * Implements file saving, retrieval, and deletion within Google Cloud Storage.
+ * Usage: Supports imageservice and satelliteservice with file management capabilities.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */
