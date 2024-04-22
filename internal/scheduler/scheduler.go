@@ -17,99 +17,73 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
-	"time"
-
-	"github.com/sthompson732/viticulture-harvester-app/internal/config"
-	"google.golang.org/api/option"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	scheduler "cloud.google.com/go/scheduler/apiv1"
-	schedulerpb "cloud.google.com/go/scheduler/apiv1/schedulerpb"
+	"github.com/sthompson732/viticulture-harvester-app/internal/config"
+	"google.golang.org/api/option"
+	schedulerpb "google.golang.org/genproto/googleapis/cloud/scheduler/v1"
 )
 
 type SchedulerClient struct {
-	Client *scheduler.CloudSchedulerClient
+	Client *scheduler.Client
 	Cfg    *config.Config
 }
 
 func NewSchedulerClient(ctx context.Context, cfg *config.Config) (*SchedulerClient, error) {
-	client, err := scheduler.NewCloudSchedulerClient(ctx, option.WithCredentialsFile(cfg.CloudStorage.CredentialsPath))
+	client, err := scheduler.NewClient(ctx, option.WithCredentialsFile(cfg.CloudStorage.CredentialsPath))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create scheduler client: %w", err)
+		return nil, fmt.Errorf("failed to create scheduler client: %v", err)
 	}
-	return &SchedulerClient{Client: client, Cfg: cfg}, nil
+	return &SchedulerClient{
+		Client: client,
+		Cfg:    cfg,
+	}, nil
 }
 
-func (sc *SchedulerClient) InitializeJobs(ctx context.Context) error {
-	for name, ds := range sc.Cfg.DataSources {
-		if ds.Enabled {
-			if err := sc.ensureJob(ctx, name, ds); err != nil {
-				log.Printf("Failed to ensure job %s: %v", name, err)
+func (sc *SchedulerClient) SetupJobs(ctx context.Context) error {
+	for _, jobCfg := range sc.Cfg.DataSources {
+		if jobCfg.Enabled {
+			err := sc.createJob(ctx, jobCfg)
+			if err != nil {
+				log.Printf("Failed to create job for %s: %v", jobCfg.Description, err)
+				continue
 			}
+			log.Printf("Successfully scheduled job: %s", jobCfg.Description)
 		}
 	}
 	return nil
 }
 
-func (sc *SchedulerClient) ensureJob(ctx context.Context, name string, ds config.DataSourceConfig) error {
-	jobName := fmt.Sprintf("projects/%s/locations/%s/jobs/%s", sc.Cfg.ProjectID, sc.Cfg.LocationID, name)
-	_, err := sc.Client.GetJob(ctx, &schedulerpb.GetJobRequest{Name: jobName})
-
-	if err != nil && status.Code(err) != codes.NotFound {
-		return fmt.Errorf("error checking job %s: %w", name, err)
-	}
-
-	if err == nil {
-		log.Printf("Job %s already exists", name)
-		return nil
-	}
-
-	// Retry logic with exponential backoff
-	retryCount := 3
-	for i := 0; i < retryCount; i++ {
-		if err = sc.createJob(ctx, jobName, ds); err == nil {
-			log.Printf("Successfully created job %s on attempt %d", name, i+1)
-			return nil
-		}
-		waitTime := time.Duration(math.Pow(2, float64(i))) * time.Second
-		log.Printf("Failed to create job %s, retrying in %v...", name, waitTime)
-		time.Sleep(waitTime)
-	}
-
-	return fmt.Errorf("failed to create job %s after %d retries: %v", name, retryCount, err)
-}
-
-func (sc *SchedulerClient) createJob(ctx context.Context, jobName string, ds config.DataSourceConfig) error {
-	tz := ds.TimeZone
-	if tz == "" {
-		tz = "UTC" // Default to UTC if timezone is not specified
-	}
-
-	httpTarget := &schedulerpb.HttpTarget{
-		Uri:        ds.Endpoint,
-		HttpMethod: schedulerpb.HttpMethod(schedulerpb.HttpMethod_value[ds.HttpMethod]),
-		Headers:    map[string]string{"Content-Type": "application/json"},
-	}
-
-	jobReq := &schedulerpb.CreateJobRequest{
-		Parent: fmt.Sprintf("projects/%s/locations/%s", sc.Cfg.ProjectID, sc.Cfg.LocationID),
-		Job: &schedulerpb.Job{
-			Name:        jobName,
-			Description: ds.Description,
-			Schedule:    ds.Schedule,
-			TimeZone:    tz,
-			Target: &schedulerpb.Job_HttpTarget{ // This assumes 'Target' is the correct oneof field name for different job types
-				HttpTarget: httpTarget,
+func (sc *SchedulerClient) createJob(ctx context.Context, jobCfg config.DataSourceConfig) error {
+	parent := fmt.Sprintf("projects/%s/locations/%s", sc.Cfg.ProjectID, sc.Cfg.LocationID)
+	job := &schedulerpb.Job{
+		Name: fmt.Sprintf("%s/jobs/%s", parent, jobCfg.Description),
+		Target: &schedulerpb.HttpTarget{
+			Uri:        jobCfg.Endpoint,
+			HttpMethod: schedulerpb.HttpMethod(schedulerpb.HttpMethod_value[jobCfg.HttpMethod]),
+			Headers: map[string]string{
+				"Authorization": "Bearer " + sc.Cfg.APIKey,
 			},
 		},
+		Schedule: jobCfg.Schedule,
+		TimeZone: jobCfg.TimeZone,
 	}
-
-	_, err := sc.Client.CreateJob(ctx, jobReq)
+	_, err := sc.Client.CreateJob(ctx, &schedulerpb.CreateJobRequest{
+		Parent: parent,
+		Job:    job,
+	})
 	if err != nil {
-		return fmt.Errorf("failed to create job %s: %v", jobName, err)
+		return fmt.Errorf("failed to create job for %s: %v", jobCfg.Description, err)
 	}
+	return nil
+}
 
+func (sc *SchedulerClient) DeleteJob(ctx context.Context, jobName string) error {
+	_, err := sc.Client.DeleteJob(ctx, &schedulerpb.DeleteJobRequest{
+		Name: jobName,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete job %s: %v", jobName, err)
+	}
 	return nil
 }
