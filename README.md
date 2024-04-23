@@ -2,9 +2,15 @@
 
 ## Overview
 
-The Viticulture Harvester is an advanced data orchestration platform that enhances vineyard management through strategic automation and refined data processing. Built with Go, this system integrates seamlessly with PostgreSQL for robust data management and employs Google Cloud services for optimized operational efficiency. It orchestrates complex workflows including scheduled data capture via Google Cloud Scheduler, real-time data processing, and comprehensive CRUD operations on a meticulously designed RESTful API framework. This proof of concept not only demonstrates handling high-volume data sets but also showcases real-time analytical capabilities to empower vineyard decision-making processes.
+The Viticulture Harvester provides a comprehensive toolset designed for advanced vineyard management. Utilizing Go, PostgreSQL, and the Google Cloud Platform, this application enhances operational decision-making through detailed environmental data and high-resolution imagery integration.
 
-This application exemplifies precision agriculture by utilizing cutting-edge technology to merge satellite imagery with sensor data, providing actionable insights through a high-performance backend.
+### Purpose and Design:
+Created to support precision agriculture, this platform automates and synthesizes data from multiple sources including satellite imagery and environmental sensors. This integration offers vineyard managers a dynamic view of their fields, facilitating precise cultivation strategies and resource management.
+
+### Infrastructure and Technology:
+Employing robust Google Cloud services and PostgreSQL, the Viticulture Harvester scales seamlessly to accommodate extensive data sets with optimal performance. Regular updates managed via Google Cloud Scheduler ensure timely data refreshes, making critical information readily available through efficient RESTful APIs.
+
+This system not only simplifies comprehensive vineyard management but also equips operators with the tools to significantly enhance productivity and sustainability.
 
 ## Technical Configuration
 
