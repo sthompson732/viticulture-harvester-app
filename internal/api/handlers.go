@@ -9,11 +9,15 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/sthompson732/viticulture-harvester-app/internal/config"
 	"github.com/sthompson732/viticulture-harvester-app/internal/model"
 	"github.com/sthompson732/viticulture-harvester-app/internal/service"
 	"github.com/sthompson732/viticulture-harvester-app/pkg/util"
@@ -26,6 +30,79 @@ type AppHandler struct {
 	PestService      service.PestService
 	WeatherService   service.WeatherService
 	SatelliteService service.SatelliteService
+	Cfg              *config.Config
+}
+
+// FetchDataFromSource dynamically handles data retrieval and processing for configured data sources
+func (h *AppHandler) FetchDataFromSource(w http.ResponseWriter, r *http.Request) {
+	sourceKey := mux.Vars(r)["source"]
+	dataSource, ok := h.Cfg.DataSources[sourceKey]
+	if !ok {
+		http.Error(w, "Data source configuration not found", http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the data from the external source
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, dataSource.HttpMethod, dataSource.Endpoint, nil)
+	if err != nil {
+		http.Error(w, "Failed to create request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if dataSource.APIKey != "" {
+		req.Header.Add("Authorization", "Bearer "+dataSource.APIKey)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, "Failed to fetch data: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		http.Error(w, "Failed to fetch data, server returned: "+resp.Status, http.StatusInternalServerError)
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Failed to read response body: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Process the data
+	switch sourceKey {
+	case "weather":
+		var data model.WeatherData
+		if err := json.Unmarshal(body, &data); err != nil {
+			http.Error(w, "Error decoding weather data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := h.WeatherService.CreateWeatherData(r.Context(), &data); err != nil {
+			http.Error(w, "Failed to save weather data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	case "satellite":
+		var data model.SatelliteData
+		if err := json.Unmarshal(body, &data); err != nil {
+			http.Error(w, "Error decoding satellite data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := h.SatelliteService.SaveSatelliteData(r.Context(), &data, nil); err != nil {
+			http.Error(w, "Failed to save satellite data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, "Unsupported data source", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Data fetched and processed successfully"))
 }
 
 // Handlers for Vineyard

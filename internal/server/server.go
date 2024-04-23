@@ -3,7 +3,7 @@
  * Sets up routing and starts listening for requests.
  * Usage: Provides the runtime environment for the web interface.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
+ * Created on: 04/11/2024
  */
 
 package server
@@ -25,9 +25,11 @@ func NewServer(router *mux.Router) *Server {
 	}
 }
 
-func (s *Server) Start(port string) {
+func (s *Server) Start(port string) error {
 	log.Printf("Starting server on port %s\n", port)
 	if err := http.ListenAndServe(":"+port, s.Router); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		log.Printf("Server failed to start: %v", err)
+		return err
 	}
+	return nil
 }

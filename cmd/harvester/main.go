@@ -1,7 +1,7 @@
 /*
  * main.go: Entry point of the Viticulture Data Harvester.
- * Initializes services and starts the HTTP server.
- * Usage: Executes as the starting runtime point, configuring services and routing.
+ * Initializes services and dynamically schedules data fetching tasks.
+ * Usage: Sets up services, routing, and triggers data ingestion based on configuration.
  * Author(s): Shannon Thompson
  * Created on: 04/10/2024
  */
@@ -14,7 +14,6 @@ import (
 	"os"
 
 	"github.com/sthompson732/viticulture-harvester-app/internal/api"
-	"github.com/sthompson732/viticulture-harvester-app/internal/clients"
 	"github.com/sthompson732/viticulture-harvester-app/internal/config"
 	"github.com/sthompson732/viticulture-harvester-app/internal/db"
 	"github.com/sthompson732/viticulture-harvester-app/internal/scheduler"
@@ -24,6 +23,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	// Load configuration from file
 	cfgPath := os.Getenv("CONFIG_PATH")
 	if cfgPath == "" {
@@ -41,13 +42,12 @@ func main() {
 	}
 
 	// Initialize the storage service
-	ctx := context.Background() // Depending on our needs, we might want to use a more specific context
 	storageService, err := storage.NewStorageService(ctx, cfg.CloudStorage.BucketName, cfg.CloudStorage.CredentialsPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize storage service: %v", err)
 	}
 
-	// Initialize services
+	// Initialize data services
 	vineyardService := service.NewVineyardService(database)
 	imageService := service.NewImageService(database, storageService)
 	soilDataService := service.NewSoilDataService(database)
@@ -55,7 +55,7 @@ func main() {
 	weatherService := service.NewWeatherService(database)
 	satelliteService := service.NewSatelliteService(database, storageService)
 
-	// Set up the router
+	// Set up the API router
 	router := api.NewRouter(vineyardService, imageService, soilDataService, pestService, weatherService, satelliteService)
 
 	// Initialize and start the server
@@ -64,17 +64,14 @@ func main() {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 
-	// Initialize satellite and soil clients
-	satelliteClient := clients.NewSatelliteClient(cfg)
-	soilClient := clients.NewSoilClient(cfg)
-
 	// Initialize Scheduler Client and set up jobs
 	schedClient, err := scheduler.NewSchedulerClient(ctx, cfg)
 	if err != nil {
 		log.Fatalf("Failed to create scheduler client: %v", err)
 	}
 
-	if err := schedClient.InitializeJobs(ctx); err != nil {
-		log.Fatalf("Failed to initialize scheduler jobs: %v", err)
+	// Dynamically schedule jobs based on data source configurations
+	if err := schedClient.SetupJobs(ctx); err != nil {
+		log.Fatalf("Failed to set up scheduler jobs: %v", err)
 	}
 }

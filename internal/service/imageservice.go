@@ -3,7 +3,7 @@
  * Handles CRUD operations and interfaces with storage solutions.
  * Usage: Provides methods to save, fetch, and manage images related to vineyards.
  * Author(s): Shannon Thompson
- * Created on: 04/10/2024
+ * Created on: 04/11/2024
  */
 
 package service
@@ -51,7 +51,7 @@ func (is *imageServiceImpl) SaveImage(ctx context.Context, image *model.Image, i
 	}
 
 	// Upload image data to cloud storage and retrieve the URL
-	imageURL, err := is.storage.UploadImage(ctx, image.URL, imageData)
+	imageURL, err := is.storage.UploadFile(ctx, "vineyard_images/"+time.Now().Format("20060102_150405")+"_"+image.URL, imageData)
 	if err != nil {
 		return err
 	}

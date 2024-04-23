@@ -23,6 +23,7 @@ type Config struct {
 	Notifications     NotificationsConfig         `yaml:"notifications"`
 	ProjectID         string                      `yaml:"projectID"`
 	LocationID        string                      `yaml:"locationID"`
+	ValidAPIKeys      []string                    `yaml:"validApiKeys"`
 }
 
 type AppConfig struct {
@@ -42,13 +43,16 @@ type CloudStorageConfig struct {
 
 // DataSourceConfig generalized for all data sources
 type DataSourceConfig struct {
-	Enabled     bool   `yaml:"enabled"`
-	Schedule    string `yaml:"schedule"`
-	TimeZone    string `yaml:"timeZone"`
-	HttpMethod  string `yaml:"httpMethod"`
-	Endpoint    string `yaml:"endpoint"`
-	APIKey      string `yaml:"apiKey"`
-	Description string `yaml:"description"`
+	Enabled     bool              `yaml:"enabled"`
+	Schedule    string            `yaml:"schedule"`
+	TimeZone    string            `yaml:"timeZone"`
+	HttpMethod  string            `yaml:"httpMethod"`
+	Endpoint    string            `yaml:"endpoint"`
+	APIKey      string            `yaml:"apiKey"`
+	Params      map[string]string `yaml:"params"`  // Additional parameters for API calls
+	Headers     map[string]string `yaml:"headers"` // Custom headers for API calls
+	Body        string            `yaml:"body"`    // Added for PUT/PATCH/POST
+	Description string            `yaml:"description"`
 }
 
 type IngestionSettingsConfig struct {

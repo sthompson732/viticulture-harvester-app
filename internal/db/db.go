@@ -36,13 +36,30 @@ func NewDB(dsn string) (*DB, error) {
 	return &DB{db}, nil
 }
 
+// Generic SaveData method to support dynamically fetched data
+func (db *DB) SaveData(ctx context.Context, data interface{}, dataType string) error {
+	switch dataType {
+	case "image":
+		return db.SaveImage(ctx, data.(*model.Image))
+	case "satellite":
+		return db.SaveSatelliteImagery(ctx, data.(*model.SatelliteData))
+	case "soil":
+		return db.SaveSoilData(ctx, data.(*model.SoilData))
+	case "weather":
+		return db.SaveWeatherData(ctx, data.(*model.WeatherData))
+	default:
+		return fmt.Errorf("unsupported data type %s", dataType)
+	}
+}
+
 // Image methods
+
 func (db *DB) SaveImage(ctx context.Context, image *model.Image) error {
 	const query = `
-    INSERT INTO images (vineyard_id, url, captured_at)
-    VALUES ($1, $2, $3)
+    INSERT INTO images (vineyard_id, url, description, captured_at, bbox)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING id`
-	err := db.QueryRowContext(ctx, query, image.VineyardID, image.URL, image.CapturedAt).Scan(&image.ID)
+	err := db.QueryRowContext(ctx, query, image.VineyardID, image.URL, image.Description, image.CapturedAt, image.BoundingBox).Scan(&image.ID)
 	if err != nil {
 		return fmt.Errorf("inserting image: %w", err)
 	}
