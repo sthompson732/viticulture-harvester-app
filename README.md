@@ -25,10 +25,12 @@ This system not only simplifies comprehensive vineyard management but also equip
 
 ## Features
 
-- **Vineyard Management**: Supports CRUD operations to create, update, delete, and retrieve vineyard records efficiently.
-- **Image Processing**: Framework to handle satellite image data processing and storage.
-- **Data Reporting**: Capabilities to generate comprehensive reports summarizing vineyard status and health.
-- **Scheduled Tasks**: Automated data ingestion and processing tasks configured through Google Cloud Scheduler.
+- **Vineyard Management**: Provides comprehensive tools for managing vineyard records, enabling CRUD operations (create, read, update, delete) that ensure detailed tracking and data accuracy.
+- **High-Resolution Imagery Handling**: Supports the processing and storage of satellite and orthophoto imagery to aid in detailed monitoring and analysis of vineyard conditions.
+- **Data Reporting**: Offers capabilities to generate detailed reports, summarizing vineyard health and activities, which supports informed decision-making and strategic planning.
+- **Automated Data Ingestion**: Uses Google Cloud Scheduler to automate the regular collection of imagery and sensor data, keeping vineyard information consistently up-to-date.
+- **IoT Integration**: Incorporates data from IoT sensors to provide real-time insights into vineyard conditions, optimizing resource management and operational responses.
+- **API-Driven Interactions**: Facilitates robust API endpoints for efficient data retrieval and integration, enabling seamless interactions with external systems and applications.
 
 ## Getting Started
 
