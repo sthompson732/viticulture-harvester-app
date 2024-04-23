@@ -26,15 +26,20 @@ import (
 )
 
 type SchedulerClient struct {
-	Client *scheduler.CloudSchedulerClient
+	Client *scheduler.Client
 	Cfg    *config.Config
 }
 
 func NewSchedulerClient(ctx context.Context, cfg *config.Config) (*SchedulerClient, error) {
-	client, err := scheduler.NewCloudSchedulerClient(ctx, option.WithCredentialsFile(cfg.CloudStorage.CredentialsPath))
+	client, err := scheduler.NewClient(ctx, option.WithCredentialsFile(cfg.CloudStorage.CredentialsPath))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scheduler client: %v", err)
+		return nil, fmt.Errorf("failed to create scheduler client: %v", err)
 	}
+	return &SchedulerClient{
+		Client: client,
+		Cfg:    cfg,
+	}, nil
 	return &SchedulerClient{
 		Client: client,
 		Cfg:    cfg,
@@ -48,7 +53,15 @@ func (sc *SchedulerClient) SetupJobs(ctx context.Context) error {
 			if err != nil {
 				log.Printf("Failed to create job for %s: %v", jobCfg.Description, err)
 				continue
+func (sc *SchedulerClient) SetupJobs(ctx context.Context) error {
+	for _, jobCfg := range sc.Cfg.DataSources {
+		if jobCfg.Enabled {
+			err := sc.createJob(ctx, jobCfg)
+			if err != nil {
+				log.Printf("Failed to create job for %s: %v", jobCfg.Description, err)
+				continue
 			}
+			log.Printf("Successfully scheduled job: %s", jobCfg.Description)
 			log.Printf("Successfully scheduled job: %s", jobCfg.Description)
 		}
 	}
