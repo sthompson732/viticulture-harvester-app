@@ -2,11 +2,7 @@
  * satelliteservice.go: Manages satellite imagery data for vineyards.
  * Provides concurrent operations for storing, updating, and retrieving high-resolution imagery efficiently.
  * Usage: Manages satellite data integrations, storage operations, and concurrent data queries.
- * satelliteservice.go: Manages satellite imagery data for vineyards.
- * Provides concurrent operations for storing, updating, and retrieving high-resolution imagery efficiently.
- * Usage: Manages satellite data integrations, storage operations, and concurrent data queries.
  * Author(s): Shannon Thompson
- * Created on: 04/12/2024
  * Created on: 04/12/2024
  */
 package service
@@ -15,7 +11,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"sync"
 	"sync"
 	"time"
 
@@ -31,7 +26,6 @@ type SatelliteService interface {
 	DeleteSatelliteData(ctx context.Context, id int) error
 	ListSatelliteDataByVineyard(ctx context.Context, vineyardID int) ([]model.SatelliteData, error)
 	ListSatelliteImageryByDateRange(ctx context.Context, vineyardID int, start, end time.Time) ([]model.SatelliteData, error)
-	ConcurrentSaveSatelliteData(ctx context.Context, datas []*model.SatelliteData, imageDatas []io.Reader) error
 	ConcurrentSaveSatelliteData(ctx context.Context, datas []*model.SatelliteData, imageDatas []io.Reader) error
 }
 
@@ -68,8 +62,6 @@ func (s *satelliteServiceImpl) GetSatelliteData(ctx context.Context, id int) (*m
 }
 
 func (s *satelliteServiceImpl) UpdateSatelliteData(ctx context.Context, data *model.SatelliteData, imageData io.Reader) error {
-	if data == nil || data.ID == 0 {
-		return errors.New("invalid satellite data")
 	if data == nil || data.ID == 0 {
 		return errors.New("invalid satellite data")
 	}
