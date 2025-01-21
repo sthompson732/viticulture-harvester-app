@@ -15,6 +15,7 @@ import (
 
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/geojson"
+	"github.com/paulmach/orb/planar"
 	"github.com/pzsz/voronoi"
 )
 
@@ -74,6 +75,10 @@ func (s *ZoneService) GenerateIsochrone(ctx context.Context, lat, lon float64, m
 
 // GenerateVoronoi computes Voronoi polygons for given points
 func (s *ZoneService) GenerateVoronoi(points []voronoi.Vertex, bounds orb.Bound) ([]*geojson.Feature, error) {
+	if len(points) == 0 {
+		return nil, fmt.Errorf("no points provided for Voronoi generation")
+	}
+
 	diagram := voronoi.ComputeDiagram(points, bounds)
 	features := []*geojson.Feature{}
 
@@ -89,4 +94,34 @@ func (s *ZoneService) GenerateVoronoi(points []voronoi.Vertex, bounds orb.Bound)
 		features = append(features, feature)
 	}
 	return features, nil
+}
+
+// ClipPolygons trims Voronoi polygons to fit within the isochrones
+func (s *ZoneService) ClipPolygons(voronoiPolygons []*geojson.Feature, isochrones []*geojson.Feature) ([]*geojson.Feature, error) {
+	if len(voronoiPolygons) == 0 || len(isochrones) == 0 {
+		return nil, fmt.Errorf("voronoi or isochrone polygons cannot be empty")
+	}
+
+	clippedPolygons := []*geojson.Feature{}
+	for _, isochrone := range isochrones {
+		isoPolygon, ok := isochrone.Geometry.(orb.Polygon)
+		if !ok {
+			return nil, fmt.Errorf("invalid isochrone geometry type")
+		}
+
+		for _, voronoi := range voronoiPolygons {
+			vorPolygon, ok := voronoi.Geometry.(orb.Polygon)
+			if !ok {
+				return nil, fmt.Errorf("invalid voronoi geometry type")
+			}
+
+			clipped := planar.Intersect(vorPolygon, isoPolygon)
+			if clipped != nil {
+				feature := geojson.NewFeature(clipped)
+				feature.Properties = voronoi.Properties // Retain original properties
+				clippedPolygons = append(clippedPolygons, feature)
+			}
+		}
+	}
+	return clippedPolygons, nil
 }
